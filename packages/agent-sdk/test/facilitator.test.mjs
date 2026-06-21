@@ -1,32 +1,23 @@
-// Live facilitator /verify round-trip (fund402 fix #1, the network half).
-//
+// Live facilitator /verify round-trip for the SHIPPED path (buildExactPayload).
 // The casper-x402 facilitator's verify() is purely cryptographic + format +
-// timing — it does NOT read on-chain balances or token existence. So this test
-// confirms the EIP-712 digest + 65-byte signature are accepted by the LIVE
-// facilitator using ONLY a CSPR.cloud API key. No deploy, no funding required.
+// timing (no on-chain reads), so this confirms the EIP-712 digest + 65-byte
+// signature the agent SDK actually produces are accepted by the LIVE facilitator
+// using ONLY a CSPR.cloud API key.
 //
 //   CSPR_CLOUD_API_KEY=<token> npm run test:facilitator
 //
-// Optional overrides (all have safe defaults):
-//   FACILITATOR_URL   default https://x402-facilitator.cspr.cloud
-//   X402_NETWORK      default casper:casper-test
-//   CEP18_ASSET       default a dummy 64-hex package hash (fine for /verify)
-//   CEP18_NAME        default Cep18x402
-//   CEP18_VERSION     default 1
-//   PAY_TO            default a dummy 00-tagged merchant account hash
-//   AMOUNT            default 10000
-//   AGENT_SECRET_HEX  default an ephemeral generated ed25519 key
+// Optional overrides (safe defaults): FACILITATOR_URL, X402_NETWORK, CEP18_ASSET,
+// CEP18_NAME, CEP18_VERSION, PAY_TO, AMOUNT, AGENT_SECRET_HEX.
+import { createRequire } from "node:module";
 import * as casperNS from "casper-js-sdk";
-import * as x402NS from "@make-software/casper-x402";
 
 const casper = casperNS.default ?? casperNS;
-const x402 = x402NS.default ?? x402NS;
 const { PrivateKey, KeyAlgorithm } = casper;
-const { ExactCasperScheme, toClientCasperSigner } = x402;
+const require = createRequire(import.meta.url);
+const { buildExactPayload } = require("../dist/casper.js");
 
 const API_KEY = process.env.CSPR_CLOUD_API_KEY;
-const FACILITATOR =
-  process.env.FACILITATOR_URL ?? "https://x402-facilitator.cspr.cloud";
+const FACILITATOR = process.env.FACILITATOR_URL ?? "https://x402-facilitator.cspr.cloud";
 const NETWORK = process.env.X402_NETWORK ?? "casper:casper-test";
 const ASSET = (process.env.CEP18_ASSET ?? "ee".repeat(32)).replace(/^0x/, "");
 const NAME = process.env.CEP18_NAME ?? "Cep18x402";
@@ -45,39 +36,36 @@ if (!API_KEY) {
 const priv = process.env.AGENT_SECRET_HEX
   ? PrivateKey.fromHex(process.env.AGENT_SECRET_HEX, KeyAlgorithm.ED25519)
   : PrivateKey.generate(KeyAlgorithm.ED25519);
-const signer = toClientCasperSigner(priv);
-const scheme = new ExactCasperScheme(signer);
 
-const requirements = {
-  scheme: "exact",
-  network: NETWORK,
-  asset: ASSET,
-  payTo: PAY_TO,
-  amount: AMOUNT,
-  maxTimeoutSeconds: 300,
-  extra: { name: NAME, version: VERSION },
-};
-
-const result = await scheme.createPaymentPayload(2, requirements);
+// Build the payload exactly the way the SDK does in production.
+const result = await buildExactPayload(
+  {
+    network: NETWORK,
+    chainName: NETWORK.includes("test") ? "casper-test" : "casper",
+    nodeUrl: "https://node.testnet.casper.network/rpc",
+    vaultContractHash: "00".repeat(32),
+    agentSecretKey: priv.toPem(),
+    agentPublicKey: priv.publicKey.toHex(),
+  },
+  { payTo: PAY_TO, amount: AMOUNT, asset: ASSET, maxTimeoutSeconds: 300, resource: "https://fund402.example/verify-selftest", extra: { name: NAME, version: VERSION } },
+  { deployHash: "00".repeat(32) }
+);
 
 const body = {
   paymentPayload: {
     x402Version: 2,
-    resource: { url: "https://fund402.example/verify-selftest" },
-    accepted: {
-      scheme: "exact",
-      network: NETWORK,
-      asset: ASSET,
-      amount: AMOUNT,
-      payTo: PAY_TO,
-      maxTimeoutSeconds: 300,
+    resource: result.resource,
+    accepted: result.accepted,
+    payload: {
+      signature: result.payload.signature,
+      publicKey: result.payload.publicKey,
+      authorization: result.payload.authorization,
     },
-    payload: result.payload,
   },
-  paymentRequirements: requirements,
+  paymentRequirements: result.paymentRequirements,
 };
 
-console.log(`POST ${FACILITATOR}/verify  (network=${NETWORK})`);
+console.log(`POST ${FACILITATOR}/verify  (network=${NETWORK}, SDK buildExactPayload)`);
 console.log("payer:", result.payload.authorization.from);
 
 const res = await fetch(`${FACILITATOR}/verify`, {
@@ -85,27 +73,19 @@ const res = await fetch(`${FACILITATOR}/verify`, {
   headers: { "content-type": "application/json", authorization: API_KEY },
   body: JSON.stringify(body),
 });
-
 const text = await res.text();
 let json;
 try {
   json = JSON.parse(text);
 } catch {
-  console.error(`HTTP ${res.status} — non-JSON response:\n${text.slice(0, 500)}`);
+  console.error(`HTTP ${res.status} — non-JSON:\n${text.slice(0, 400)}`);
   process.exit(1);
 }
-
 console.log(`HTTP ${res.status}:`, JSON.stringify(json));
 
 if (json.isValid === true) {
-  console.log("\n✅ LIVE /verify PASSED — EIP-712 signing confirmed against the facilitator.");
+  console.log("\n✅ LIVE /verify PASSED — the SDK's shipped payload is accepted by the facilitator.");
   process.exit(0);
 }
-console.error(
-  `\n❌ /verify returned isValid=false: ${json.invalidReason ?? "?"} — ${json.invalidMessage ?? ""}`
-);
-console.error(
-  "If invalidReason is invalid_signature, the digest/signature encoding needs adjustment;\n" +
-    "if it is network/asset/payto, just supply real values via env. See STATUS.md."
-);
+console.error(`\n❌ /verify isValid=false: ${json.invalidReason ?? "?"} — ${json.invalidMessage ?? ""}`);
 process.exit(1);

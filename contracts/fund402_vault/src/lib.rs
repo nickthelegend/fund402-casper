@@ -456,6 +456,45 @@ mod tests {
     use super::*;
     use odra::host::{Deployer, HostEnv};
 
+    // Minimal CEP-18 mock implementing exactly what the vault calls
+    // (balance_of / transfer / transfer_from) plus approve, so the loan
+    // lifecycle is exercised end-to-end in OdraVM without an external token.
+    #[odra::module]
+    pub struct MockCep18 {
+        balances: Mapping<Address, U256>,
+        allowances: Mapping<(Address, Address), U256>,
+    }
+
+    #[odra::module]
+    impl MockCep18 {
+        pub fn init(&mut self, initial_supply: U256) {
+            self.balances.set(&self.env().caller(), initial_supply);
+        }
+        pub fn balance_of(&self, address: &Address) -> U256 {
+            self.balances.get_or_default(address)
+        }
+        pub fn approve(&mut self, spender: &Address, amount: &U256) {
+            let owner = self.env().caller();
+            self.allowances.set(&(owner, *spender), *amount);
+        }
+        pub fn transfer(&mut self, recipient: &Address, amount: &U256) {
+            let from = self.env().caller();
+            let fb = self.balances.get_or_default(&from);
+            self.balances.set(&from, fb - *amount);
+            let rb = self.balances.get_or_default(recipient);
+            self.balances.set(recipient, rb + *amount);
+        }
+        pub fn transfer_from(&mut self, owner: &Address, recipient: &Address, amount: &U256) {
+            let spender = self.env().caller();
+            let allow = self.allowances.get_or_default(&(*owner, spender));
+            self.allowances.set(&(*owner, spender), allow - *amount);
+            let ob = self.balances.get_or_default(owner);
+            self.balances.set(owner, ob - *amount);
+            let rb = self.balances.get_or_default(recipient);
+            self.balances.set(recipient, rb + *amount);
+        }
+    }
+
     fn deploy_vault(env: &HostEnv) -> Fund402VaultHostRef {
         // asset_token is a placeholder account; the tier/credit math never
         // touches CEP-18, so these checks are token-independent.
@@ -509,5 +548,71 @@ mod tests {
         assert_eq!(vault.get_tier(agent), 2);
         vault.award_reputation(agent, 200);
         assert_eq!(vault.get_tier(agent), 3);
+    }
+
+    // Full integration: deposit -> Tier-3 borrow_and_pay -> repay, asserting real
+    // CEP-18 balance moves + reputation. Mirrors the live testnet e2e.
+    #[test]
+    fn full_loan_lifecycle() {
+        let env = odra_test::env();
+        let deployer = env.get_account(0); // admin + LP + token holder
+        let agent = env.get_account(1);
+        let merchant = env.get_account(2);
+
+        let mut token =
+            MockCep18::deploy(&env, MockCep18InitArgs { initial_supply: U256::from(1_000_000u64) });
+        let mut vault =
+            Fund402Vault::deploy(&env, Fund402VaultInitArgs { asset_token: token.address() });
+
+        // LP seeds 100_000 liquidity (approve the vault, then deposit_liquidity).
+        token.approve(&vault.address(),&U256::from(100_000u64));
+        vault.deposit_liquidity(U256::from(100_000u64));
+        assert_eq!(token.balance_of(&vault.address()), U256::from(100_000u64));
+
+        // Promote the agent to Tier 3 (reputation-only, zero collateral).
+        vault.award_reputation(agent, 250);
+        assert_eq!(vault.get_tier(agent), 3);
+
+        // Agent borrows 10_000 with zero collateral; the vault fronts it.
+        env.set_caller(agent);
+        let res = vault.borrow_and_pay(merchant, U256::from(10_000u64), U256::zero(), String::from("v1"));
+        assert_eq!(res.amount_borrowed, U256::from(10_000u64));
+        assert_eq!(token.balance_of(&merchant), U256::from(10_000u64)); // merchant paid
+        assert_eq!(token.balance_of(&vault.address()), U256::from(90_000u64)); // pool down
+        assert_eq!(vault.get_pool_stats().total_borrowed, U256::from(10_000u64));
+
+        // Repay: fund the agent, agent approves the vault, repay_loan.
+        env.set_caller(deployer);
+        token.transfer(&agent, &U256::from(10_000u64));
+        env.set_caller(agent);
+        token.approve(&vault.address(),&U256::from(10_000u64));
+        vault.repay_loan(res.loan_id);
+        assert_eq!(token.balance_of(&vault.address()), U256::from(100_000u64)); // pool restored
+        assert_eq!(vault.get_score(agent), 260); // 250 + 10 on-time
+        assert_eq!(vault.get_pool_stats().total_borrowed, U256::zero());
+    }
+
+    // Admin slashes a defaulted loan: reputation -50, outstanding cleared.
+    #[test]
+    fn slash_defaulted_loan_penalizes() {
+        let env = odra_test::env();
+        let agent = env.get_account(1);
+        let merchant = env.get_account(2);
+        let mut token =
+            MockCep18::deploy(&env, MockCep18InitArgs { initial_supply: U256::from(1_000_000u64) });
+        let mut vault =
+            Fund402Vault::deploy(&env, Fund402VaultInitArgs { asset_token: token.address() });
+        token.approve(&vault.address(),&U256::from(100_000u64));
+        vault.deposit_liquidity(U256::from(100_000u64));
+        vault.award_reputation(agent, 250);
+
+        env.set_caller(agent);
+        let res = vault.borrow_and_pay(merchant, U256::from(10_000u64), U256::zero(), String::from("v2"));
+
+        // Admin (account 0) slashes the loan.
+        env.set_caller(env.get_account(0));
+        vault.slash_defaulted_loan(res.loan_id);
+        assert_eq!(vault.get_score(agent), 200); // 250 - 50
+        assert_eq!(vault.get_pool_stats().total_borrowed, U256::zero());
     }
 }

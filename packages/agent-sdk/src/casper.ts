@@ -32,7 +32,7 @@ import {
   Duration,
   DEFAULT_DEPLOY_TTL,
 } from "casper-js-sdk";
-import { ExactCasperScheme, toClientCasperSigner } from "@make-software/casper-x402";
+import { transferAuthorizationDigest, randomNonce, bytesToHex } from "./eip712";
 
 export interface CasperWiringConfig {
   nodeUrl: string;
@@ -243,37 +243,46 @@ export async function buildExactPayload(
   proof: { deployHash: string }
 ) {
   const algo = cfg.keyAlgorithm ?? KeyAlgorithm.ED25519;
-  const privKey = await loadPrivateKey(cfg.agentSecretKey, algo);
-  const signer = toClientCasperSigner(privKey);
-  const scheme = new ExactCasperScheme(signer);
+  const priv = await loadPrivateKey(cfg.agentSecretKey, algo);
 
   const assetPkg = (req.asset ?? req.extra?.tokenAddress ?? "").replace(/^0x/, "");
-  const amount = req.amount ?? req.maxAmountRequired ?? "0";
-  const maxTimeoutSeconds =
-    req.maxTimeoutSeconds ?? req.requiredDeadlineSeconds ?? 300;
+  const amount = String(req.amount ?? req.maxAmountRequired ?? "0");
+  const maxTimeoutSeconds = req.maxTimeoutSeconds ?? req.requiredDeadlineSeconds ?? 300;
+  const name = req.extra?.name ?? "Cep18x402";
+  const version = req.extra?.version ?? "1";
 
-  // Shape an @x402/core PaymentRequirements the official client understands.
+  // Same construction the casper-x402 `exact` client uses, built directly off
+  // casper-js-sdk so the payload is byte-identical to the official one WITHOUT
+  // depending on @make-software/casper-x402 at runtime (its CJS build is broken).
+  // The digest (src/eip712.ts) is cross-checked against the canonical
+  // @casper-ecosystem/casper-eip-712 in test/signing.test.mjs.
+  const now = Math.floor(Date.now() / 1000);
+  const validAfter = now - 600;
+  const validBefore = now + maxTimeoutSeconds;
+  const nonce = randomNonce();
+  const from = "00" + priv.publicKey.accountHash().toHex(); // tagged account hash
+  const to = req.payTo;
+
+  const digest = transferAuthorizationDigest(
+    { name, version, chainName: cfg.network, contractPackageHash: assetPkg },
+    { from, to, value: amount, validAfter: String(validAfter), validBefore: String(validBefore), nonce }
+  );
+  // 65-byte [algorithm byte | 64-byte sig] — what the facilitator's verify() expects.
+  const signature = bytesToHex(priv.signAndAddAlgorithmBytes(digest));
+  const publicKey = priv.publicKey.toHex();
+
   const requirements = {
     scheme: "exact" as const,
     network: cfg.network,
     asset: assetPkg, // 64-hex CEP-18 package hash
-    payTo: req.payTo, // tagged "00" + 32-byte account hash
-    amount: String(amount),
+    payTo: to, // tagged "00" + 32-byte account hash
+    amount,
     maxTimeoutSeconds,
-    resource: req.resource,
-    description: req.description,
-    mimeType: req.mimeType,
-    extra: {
-      name: req.extra?.name ?? "Cep18x402",
-      version: req.extra?.version ?? "1",
-    },
+    extra: { name, version },
   };
 
-  // base = { x402Version, payload: { signature, publicKey, authorization } }
-  const base = await scheme.createPaymentPayload(2, requirements as any);
-
   return {
-    x402Version: (base as any).x402Version ?? 2,
+    x402Version: 2,
     resource: req.resource ? { url: req.resource } : undefined,
     // `accepted` echoes the chosen requirements — the facilitator's verify()
     // reads payload.accepted.scheme / .network.
@@ -281,7 +290,16 @@ export async function buildExactPayload(
     scheme: "exact" as const,
     network: cfg.network,
     payload: {
-      ...base.payload,
+      signature,
+      publicKey,
+      authorization: {
+        from,
+        to,
+        value: amount,
+        validAfter: String(validAfter),
+        validBefore: String(validBefore),
+        nonce,
+      },
       // Fund402 extension: the vault deploy that actually moved the funds.
       settlement: { deployHash: proof.deployHash, asset: assetPkg },
     },

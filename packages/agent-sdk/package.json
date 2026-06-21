@@ -7,8 +7,10 @@
   "scripts": {
     "build": "tsc -p tsconfig.json",
     "prepare": "npm run build",
-    "test:signing": "node --experimental-vm-modules ./test/signing.test.mjs",
-    "test:facilitator": "node ./test/facilitator.test.mjs"
+    "test": "npm run build && node test/signing.test.mjs && node test/payload.test.mjs && node test/facilitator.test.mjs",
+    "test:signing": "node test/signing.test.mjs",
+    "test:payload": "node test/payload.test.mjs",
+    "test:facilitator": "node test/facilitator.test.mjs"
   },
   "dependencies": {
     "@casper-ecosystem/casper-eip-712": "^1.2.1",

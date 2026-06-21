@@ -119,6 +119,25 @@ node scripts/e2e.mjs borrow  # borrow_and_pay  ← the money shot
 Config lives in `.env.local` (gitignored) — see `.env.example`. Keys live in
 `.keys/` (gitignored). Funding runbook: **[SETUP.md](./SETUP.md)**.
 
+## Tests
+
+```bash
+npm test                            # gateway lib + agent-SDK signing/payload (facilitator skips w/o key)
+CSPR_CLOUD_API_KEY=<key> npm test   # + LIVE facilitator /verify of the shipped payload
+npm run contract:test               # Odra vault: 7 tests incl. the full loan lifecycle (OdraVM, nightly)
+```
+
+| Suite | What it proves |
+|---|---|
+| `contracts/fund402_vault` (Rust/OdraVM) | tier math, 150% collateral, **full lifecycle** (deposit → Tier-3 borrow → repay, real CEP-18 balance moves + reputation), slash |
+| `packages/agent-sdk/test/signing` | fund402's EIP-712 digest **== canonical** `casper-eip-712`; the 65-byte signature passes the facilitator's exact checks (offline) |
+| `packages/agent-sdk/test/payload` | x402 v2 payload shape + the Fund402 `settlement` extension |
+| `packages/agent-sdk/test/facilitator` | the **shipped** payload is accepted by the **live** facilitator (`isValid:true`) |
+| `test/gateway` | 402 challenge / payment-requirements / signature decode / config |
+
+All green as of the last run. The contract suite mirrors the on-chain e2e in
+[DEPLOYMENT.md](./DEPLOYMENT.md).
+
 ## Building the vault WASM (the hard-won recipe)
 
 Odra contracts for Casper 2.0 need a specific toolchain — encoded in
