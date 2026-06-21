@@ -1,0 +1,25 @@
+{
+  "name": "@fund402/agent-sdk",
+  "version": "0.1.0",
+  "description": "Casper-native x402 payment interceptor for autonomous AI agents",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "prepare": "npm run build",
+    "test:signing": "node --experimental-vm-modules ./test/signing.test.mjs",
+    "test:facilitator": "node ./test/facilitator.test.mjs"
+  },
+  "dependencies": {
+    "@casper-ecosystem/casper-eip-712": "^1.2.1",
+    "@make-software/casper-x402": "^1.0.0",
+    "@noble/hashes": "^1.4.0",
+    "axios": "^1.7.0",
+    "casper-js-sdk": "^5.0.0"
+  },
+  "devDependencies": {
+    "@types/node": "^22.20.0",
+    "typescript": "^5.6.0"
+  },
+  "license": "Apache-2.0"
+}

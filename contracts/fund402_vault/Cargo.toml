@@ -1,0 +1,40 @@
+[package]
+name = "fund402_vault"
+version = "0.1.0"
+edition = "2021"
+description = "Fund402 JIT credit vault for AI agents on Casper (Odra)"
+license = "Apache-2.0"
+
+[dependencies]
+odra = { version = "2.8.0", default-features = false }
+# odra-build must be a normal dependency (not a build-dependency) so the
+# bin/build_contract.rs + bin/build_schema.rs targets, which call
+# `odra_build::build()`, can resolve it. The no_std contract lib never
+# references it, so it is pruned from the wasm build.
+odra-build = "2.8.0"
+
+[dev-dependencies]
+odra-test = "2.8.0"
+
+# odra-build is ALSO a build-dependency: build.rs calls odra_build::build() to
+# set the `odra_module` cfg from $ODRA_MODULE so the contract entry points
+# (call/init/borrow_and_pay/…) are emitted into the wasm.
+[build-dependencies]
+odra-build = "2.8.0"
+
+[[bin]]
+name = "fund402_vault_build_contract"
+path = "bin/build_contract.rs"
+test = false
+
+[[bin]]
+name = "fund402_vault_build_schema"
+path = "bin/build_schema.rs"
+test = false
+
+[features]
+default = []
+
+[profile.release]
+codegen-units = 1
+lto = true

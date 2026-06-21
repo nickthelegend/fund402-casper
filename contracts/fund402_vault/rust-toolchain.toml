@@ -1,0 +1,5 @@
+# Odra 2.8's supported nightly (its git tag's rust-toolchain). Its wasm-env
+# compiles on this; older odra (1.5.1) did not on recent nightlies.
+[toolchain]
+channel = "nightly-2026-01-01"
+targets = ["wasm32-unknown-unknown"]

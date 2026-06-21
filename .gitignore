@@ -1,0 +1,33 @@
+# deps
+node_modules/
+.pnp
+.pnp.js
+
+# next
+.next/
+out/
+build/
+next-env.d.ts
+
+# TS build output (agent-sdk rebuilds via its `prepare` script)
+dist/
+
+# rust / odra
+contracts/**/target/
+wasm/
+*.wasm
+
+# env & secrets
+.env
+.env.local
+.env*.local
+*.pem
+
+# misc
+.DS_Store
+*.log
+.vercel
+tsconfig.tsbuildinfo
+
+# generated keypairs (testnet secrets)
+.keys/
