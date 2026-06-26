@@ -21,6 +21,11 @@ No spin. What's real, what's simplified, what's left. Completion at the bottom.
   (`status: processed`, amount `1000000`, merchant = treasury, collateral `0`).
   The SDK now calls the vault by **package hash** (`StoredVersionedContractByHash`) —
   the path proven live — and `verifyPoolSettlement` checks `contract_package_hash`.
+- **🔐 Collateralized (Tier-1) borrow verified live through the SDK** — a no-reputation
+  agent had `fund402Fetch` **auto-approve and escrow 150% collateral** then borrow:
+  approve `f088362a…`, settlement `a9dd1581…` (on-chain `collateral=1500000`,
+  `amount=1000000`, processed). Both credit paths (zero-collateral + collateralized)
+  now run end-to-end through the published SDK.
 - **🔁 Repayment proven live**: `repay_loan` settled on-chain (deploy `357334fa…`) —
   collateral released, reputation `+10`.
 - **🤖 Autonomous agent + MCP, live**: `fund402-agent` (12 on-chain tools) +
@@ -38,20 +43,15 @@ No spin. What's real, what's simplified, what's left. Completion at the bottom.
 
 ## ⚠️ Simplified / not fully wired (the honest gaps)
 
-1. **`fund402Fetch` targets the Tier-3 (zero-collateral) path.** For Tier-1/2 the
-   agent must `approve` the vault for collateral first — the SDK exports
-   `ensureCollateralAllowance` and the **agent toolbox does call approve** (verified
-   live for repay), but the one-call `fund402Fetch` interceptor doesn't auto-insert
-   an approve step. Seed agents to Tier 3 for the collateral-free flow.
-2. **No autonomous `EarningStream`.** Repayment is real and proven live, but it's an
+1. **No autonomous `EarningStream`.** Repayment is real and proven live, but it's an
    explicit call (agent tool / `repayLoanOnChain`), not auto-triggered from the
    agent's own x402 revenue. The SRSD `EarningStream` contract is intentionally not built.
-3. **Loan TTL/expiry is not enforced on-chain.** Loans store a `timestamp`;
+2. **Loan TTL/expiry is not enforced on-chain.** Loans store a `timestamp`;
    `slash_defaulted_loan` is admin-discretion with no expiry check (SRSD `loan_ttl`
    absent).
-4. **CSPR.click dashboard deposit/withdraw** type-checks but isn't browser-tested
+3. **CSPR.click dashboard deposit/withdraw** type-checks but isn't browser-tested
    (needs an `appId` + a wallet; watch the "sign message vs raw digest" x402 caveat).
-5. **Facilitator `/settle` path** is supported as optional defense-in-depth
+4. **Facilitator `/settle` path** is supported as optional defense-in-depth
    (`verifyWithFacilitator`), but Fund402 settles via the vault (the pool is the
    payer) and verifies that on-chain — `/settle` is an alternative model, not the
    primary flow.
@@ -74,7 +74,7 @@ No spin. What's real, what's simplified, what's left. Completion at the bottom.
 |---|---|---|
 | Vault contract (core) | ~90% | works + deployed + proven; no on-chain TTL, no earning-stream |
 | EIP-712 / x402 signing | ~95% | live `/verify` = `isValid:true` |
-| **SDK (`@nickthelegend69/fund402`)** | ~90% | **published**; full server↔client↔vault loop **run live**; Express/Hono/Next adapters; Tier-1/2 approve exported but not auto-wired in `fund402Fetch` |
+| **SDK (`@nickthelegend69/fund402`)** | ~93% | **published**; full server↔client↔vault loop **run live** on **both** credit paths (Tier-3 zero-collateral + Tier-1 auto-approve/escrow); Express/Hono/Next adapters |
 | Agent + MCP | ~90% | 12 tools; create→fund→Tier3→borrow→repay **proven live**; Groq TUI + MCP server working |
 | Gateway (reference) | ~85% | superseded by the SDK as the productized, live-verified path |
 | Dashboard | ~70% | reads real; writes wired, not browser-tested |
@@ -82,14 +82,13 @@ No spin. What's real, what's simplified, what's left. Completion at the bottom.
 | Tests | ~88% | strong core + SDK units + live e2e; no frontend integration tests |
 | Deploy + docs | ~95% | deployed, documented, scripted, published |
 
-**Overall ≈ 88%.** Core (contract + signing + SDK) ≈ 92%. The autonomous loop —
-agent borrows through a pool-settled paywall **and** repays — is now **proven live on
-both ends** (≈ 90%); only an automatic earning-stream trigger and on-chain TTL remain
-for full SRSD parity (≈ 70%). Hackathon-submittable: **yes**.
+**Overall ≈ 89%.** Core (contract + signing + SDK) ≈ 93%. The autonomous loop — agent
+borrows through a pool-settled paywall (zero-collateral **and** collateralized) and
+repays — is now **proven live end-to-end** (≈ 92%); only an automatic earning-stream
+trigger and on-chain TTL remain for full SRSD parity (≈ 70%). Hackathon-submittable: **yes**.
 
 ## Next, to close the remaining gap (priority order)
 
-1. Auto-insert the `approve` step in `fund402Fetch` for Tier-1/2 collateral borrows.
-2. Enforce loan TTL on-chain in `slash_defaulted_loan`.
-3. Browser-test CSPR.click deposit/withdraw.
-4. `EarningStream` auto-repay from x402 revenue (optional, post-hackathon).
+1. Enforce loan TTL on-chain in `slash_defaulted_loan`.
+2. Browser-test CSPR.click deposit/withdraw.
+3. `EarningStream` auto-repay from x402 revenue (optional, post-hackathon).
