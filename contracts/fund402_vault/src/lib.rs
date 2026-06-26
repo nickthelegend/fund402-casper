@@ -35,6 +35,10 @@ use odra::ContractRef;
 
 /// 150% collateralization, expressed in basis points (15_000 = 150.00%).
 const COLLATERAL_RATIO_BPS: u64 = 15_000;
+/// JIT credit fee charged on every borrow, in basis points (500 = 5.00%). The fee is
+/// paid back on repayment ON TOP of the principal and accrues to the liquidity pool —
+/// this is the **yield the LPs earn** for fronting agents' payments.
+const BORROW_FEE_BPS: u64 = 500;
 /// Reputation thresholds for tier promotion.
 const TIER2_MIN_SCORE: i64 = 50;
 const TIER3_MIN_SCORE: i64 = 200;
@@ -59,6 +63,8 @@ pub struct Loan {
     pub agent: Address,
     pub merchant: Address,
     pub amount_borrowed: U256,
+    /// JIT credit fee owed on top of the principal at repayment (accrues to LP yield).
+    pub fee: U256,
     pub collateral_locked: U256,
     pub vault_id: String,
     pub timestamp: u64,
@@ -88,6 +94,7 @@ pub struct SimulateBorrowResult {
 pub struct PoolStats {
     pub total_liquidity: U256,
     pub total_borrowed: U256,
+    pub total_shares: U256,
     pub total_loans: u64,
     pub apy_basis_points: u32,
     pub utilization_rate: u32,
@@ -124,13 +131,21 @@ pub struct Fund402Vault {
     admin: Var<Address>,
     /// CEP-18 token used as the lending asset (the x402 settlement token).
     asset_token: Var<Address>,
+    /// Total pool value in CEP-18 base units (cash + outstanding principal). Grows by
+    /// the borrow fee on every repayment — the source of LP yield.
     total_liquidity: Var<U256>,
     total_borrowed: Var<U256>,
+    /// Total LP shares outstanding. As `total_liquidity` grows from fees while shares
+    /// stay constant, each share redeems for more than it cost = yield.
+    total_shares: Var<U256>,
     total_loans: Var<u64>,
     lp_balance: Mapping<Address, U256>,
     loans: Mapping<u64, Loan>,
     /// On-chain reputation score per agent (mirrors ReputationRegistry in the SRSD).
     reputation: Mapping<Address, i64>,
+    /// The most recent loan id opened by each agent — lets an agent repay its newest
+    /// loan without tracking the id off-chain (see `repay_latest`).
+    agent_last_loan: Mapping<Address, u64>,
 }
 
 #[odra::module]
@@ -144,45 +159,74 @@ impl Fund402Vault {
         self.asset_token.set(asset_token);
         self.total_liquidity.set(U256::zero());
         self.total_borrowed.set(U256::zero());
+        self.total_shares.set(U256::zero());
         self.total_loans.set(0);
     }
 
     // -------------------------------------------------------------- liquidity
 
-    /// LP deposits CEP-18 liquidity into the pool. Caller must have approved the
-    /// vault on the CEP-18 contract for `amount` beforehand.
+    /// LP deposits CEP-18 liquidity into the pool and is minted **shares**. Caller must
+    /// have approved the vault on the CEP-18 contract for `amount` beforehand. Shares
+    /// are minted at the current share price, so later depositors don't dilute earned
+    /// yield: `shares = amount * total_shares / total_liquidity` (1:1 for an empty pool).
     pub fn deposit_liquidity(&mut self, amount: U256) {
         let lp = self.env().caller();
         self.cep18().transfer_from(&lp, &self.env().self_address(), &amount);
 
-        let bal = self.lp_balance.get_or_default(&lp).saturating_add(amount);
+        let total_liq = self.total_liquidity.get_or_default();
+        let total_shares = self.total_shares.get_or_default();
+        let shares = if total_shares.is_zero() || total_liq.is_zero() {
+            amount
+        } else {
+            amount.saturating_mul(total_shares) / total_liq
+        };
+
+        let bal = self.lp_balance.get_or_default(&lp).saturating_add(shares);
         self.lp_balance.set(&lp, bal);
-        self.total_liquidity
-            .set(self.total_liquidity.get_or_default().saturating_add(amount));
+        self.total_shares.set(total_shares.saturating_add(shares));
+        self.total_liquidity.set(total_liq.saturating_add(amount));
     }
 
-    /// LP withdraws previously deposited (non-loaned) liquidity.
-    pub fn withdraw_liquidity(&mut self, amount: U256) {
+    /// LP burns `shares` and withdraws the CEP-18 they now redeem for — **including
+    /// accrued yield**: `tokens = shares * total_liquidity / total_shares`. Limited to
+    /// the pool's free (non-loaned) cash.
+    pub fn withdraw_liquidity(&mut self, shares: U256) {
         let lp = self.env().caller();
         let bal = self.lp_balance.get_or_default(&lp);
-        if bal < amount {
+        if bal < shares {
             self.env().revert(Fund402Error::InsufficientBalance);
         }
-        let available = self
-            .total_liquidity
-            .get_or_default()
-            .saturating_sub(self.total_borrowed.get_or_default());
-        if available < amount {
+        let total_shares = self.total_shares.get_or_default();
+        let total_liq = self.total_liquidity.get_or_default();
+        let tokens = if total_shares.is_zero() {
+            U256::zero()
+        } else {
+            shares.saturating_mul(total_liq) / total_shares
+        };
+        let available = total_liq.saturating_sub(self.total_borrowed.get_or_default());
+        if available < tokens {
             self.env().revert(Fund402Error::PoolDry);
         }
-        self.lp_balance.set(&lp, bal - amount);
-        self.total_liquidity
-            .set(self.total_liquidity.get_or_default() - amount);
-        self.cep18().transfer(&lp, &amount);
+        self.lp_balance.set(&lp, bal - shares);
+        self.total_shares.set(total_shares - shares);
+        self.total_liquidity.set(total_liq - tokens);
+        self.cep18().transfer(&lp, &tokens);
     }
 
+    /// An LP's share count.
     pub fn get_lp_balance(&self, lp: Address) -> U256 {
         self.lp_balance.get_or_default(&lp)
+    }
+
+    /// The CEP-18 value an LP's shares currently redeem for (principal + earned yield).
+    pub fn get_lp_value(&self, lp: Address) -> U256 {
+        let shares = self.lp_balance.get_or_default(&lp);
+        let total_shares = self.total_shares.get_or_default();
+        if total_shares.is_zero() {
+            U256::zero()
+        } else {
+            shares.saturating_mul(self.total_liquidity.get_or_default()) / total_shares
+        }
     }
 
     // ------------------------------------------------------------------ loans
@@ -194,7 +238,7 @@ impl Fund402Vault {
             amount.saturating_mul(U256::from(COLLATERAL_RATIO_BPS)) / U256::from(10_000u64);
         SimulateBorrowResult {
             required_collateral: required,
-            fee: U256::zero(),
+            fee: Self::borrow_fee(amount),
             net_to_merchant: amount,
         }
     }
@@ -260,6 +304,7 @@ impl Fund402Vault {
         // Front the payment to the merchant from the pool.
         self.cep18().transfer(&merchant, &amount);
 
+        let fee = Self::borrow_fee(amount);
         let loan_id = self.total_loans.get_or_default();
         self.total_loans.set(loan_id + 1);
         self.loans.set(
@@ -268,6 +313,7 @@ impl Fund402Vault {
                 agent,
                 merchant,
                 amount_borrowed: amount,
+                fee,
                 collateral_locked: locked,
                 vault_id: vault_id.clone(),
                 timestamp: self.env().get_block_time(),
@@ -275,6 +321,8 @@ impl Fund402Vault {
                 defaulted: false,
             },
         );
+        // Remember the agent's newest loan so it can `repay_latest` without an id.
+        self.agent_last_loan.set(&agent, loan_id);
         self.total_borrowed
             .set(self.total_borrowed.get_or_default().saturating_add(amount));
 
@@ -294,8 +342,9 @@ impl Fund402Vault {
         }
     }
 
-    /// Repay a loan. Pulls the principal back from the agent's CEP-18 balance,
-    /// returns the escrowed collateral, and rewards reputation (+10 on-time).
+    /// Repay a loan. Pulls the principal **plus the JIT credit fee** back from the
+    /// agent, returns the escrowed collateral, and rewards reputation (+10 on-time).
+    /// The fee is added to `total_liquidity` — **this is the yield the LPs earn.**
     pub fn repay_loan(&mut self, loan_id: u64) {
         let agent = self.env().caller();
         let mut loan = self
@@ -309,20 +358,25 @@ impl Fund402Vault {
             self.env().revert(Fund402Error::AlreadySettled);
         }
 
-        // Pull the principal back from the agent's CEP-18 balance.
+        // Pull principal + fee back from the agent's CEP-18 balance.
+        let principal = loan.amount_borrowed;
+        let fee = loan.fee;
+        let total_due = principal.saturating_add(fee);
         self.cep18()
-            .transfer_from(&agent, &self.env().self_address(), &loan.amount_borrowed);
+            .transfer_from(&agent, &self.env().self_address(), &total_due);
 
         self.total_borrowed.set(
-            self.total_borrowed
-                .get_or_default()
-                .saturating_sub(loan.amount_borrowed),
+            self.total_borrowed.get_or_default().saturating_sub(principal),
         );
+        // The fee grows the pool's value without minting shares → LP yield.
+        if fee > U256::zero() {
+            self.total_liquidity
+                .set(self.total_liquidity.get_or_default().saturating_add(fee));
+        }
 
         // Release the escrowed CEP-18 collateral back to the agent.
         let collateral = loan.collateral_locked;
         loan.repaid = true;
-        let amount = loan.amount_borrowed;
         self.loans.set(&loan_id, loan);
         if collateral > U256::zero() {
             self.cep18().transfer(&agent, &collateral);
@@ -335,8 +389,20 @@ impl Fund402Vault {
         self.env().emit_event(LoanRepaid {
             loan_id,
             agent,
-            amount,
+            amount: principal,
         });
+    }
+
+    /// Repay the agent's **most recent** open loan without needing its id — the
+    /// auto-repay primitive (an agent that just earned can settle its newest loan,
+    /// paying the fee and generating LP yield).
+    pub fn repay_latest(&mut self) {
+        let agent = self.env().caller();
+        let loan_id = self
+            .agent_last_loan
+            .get(&agent)
+            .unwrap_or_revert_with(&self.env(), Fund402Error::LoanNotFound);
+        self.repay_loan(loan_id);
     }
 
     /// Admin-only: seize the collateral of a loan that expired unpaid (TTL passed)
@@ -411,6 +477,7 @@ impl Fund402Vault {
     pub fn get_pool_stats(&self) -> PoolStats {
         let total_liquidity = self.total_liquidity.get_or_default();
         let total_borrowed = self.total_borrowed.get_or_default();
+        let total_shares = self.total_shares.get_or_default();
         let total_loans = self.total_loans.get_or_default();
         let utilization_rate = if total_liquidity > U256::zero() {
             ((total_borrowed.saturating_mul(U256::from(10_000u64))) / total_liquidity).as_u32()
@@ -420,6 +487,7 @@ impl Fund402Vault {
         PoolStats {
             total_liquidity,
             total_borrowed,
+            total_shares,
             total_loans,
             apy_basis_points: 200,
             utilization_rate,
@@ -430,7 +498,22 @@ impl Fund402Vault {
         self.loans.get(&loan_id)
     }
 
+    /// Number of loans ever opened (the next loan id).
+    pub fn get_total_loans(&self) -> u64 {
+        self.total_loans.get_or_default()
+    }
+
+    /// The id of an agent's most recent loan (for `repay_latest` callers / clients).
+    pub fn get_agent_last_loan(&self, agent: Address) -> u64 {
+        self.agent_last_loan.get_or_default(&agent)
+    }
+
     // --------------------------------------------------------------- helpers
+
+    /// JIT credit fee for a borrow of `amount` (= amount * BORROW_FEE_BPS / 10000).
+    fn borrow_fee(amount: U256) -> U256 {
+        amount.saturating_mul(U256::from(BORROW_FEE_BPS)) / U256::from(10_000u64)
+    }
 
     fn cep18(&self) -> Cep18ContractRef {
         Cep18ContractRef::new(self.env(), self.asset_token.get().unwrap())
@@ -581,13 +664,15 @@ mod tests {
         assert_eq!(token.balance_of(&vault.address()), U256::from(90_000u64)); // pool down
         assert_eq!(vault.get_pool_stats().total_borrowed, U256::from(10_000u64));
 
-        // Repay: fund the agent, agent approves the vault, repay_loan.
+        // Repay principal + 5% fee (10_000 + 500). Fund the agent, approve, repay_loan.
         env.set_caller(deployer);
-        token.transfer(&agent, &U256::from(10_000u64));
+        token.transfer(&agent, &U256::from(10_500u64));
         env.set_caller(agent);
-        token.approve(&vault.address(),&U256::from(10_000u64));
+        token.approve(&vault.address(), &U256::from(10_500u64));
         vault.repay_loan(res.loan_id);
-        assert_eq!(token.balance_of(&vault.address()), U256::from(100_000u64)); // pool restored
+        // Pool restored + the 500 fee retained as yield (100_000 → 100_500).
+        assert_eq!(token.balance_of(&vault.address()), U256::from(100_500u64));
+        assert_eq!(vault.get_pool_stats().total_liquidity, U256::from(100_500u64));
         assert_eq!(vault.get_score(agent), 260); // 250 + 10 on-time
         assert_eq!(vault.get_pool_stats().total_borrowed, U256::zero());
     }
@@ -614,5 +699,125 @@ mod tests {
         vault.slash_defaulted_loan(res.loan_id);
         assert_eq!(vault.get_score(agent), 200); // 250 - 50
         assert_eq!(vault.get_pool_stats().total_borrowed, U256::zero());
+    }
+
+    // The borrow fee is 5% of the principal.
+    #[test]
+    fn borrow_fee_is_5_percent() {
+        let env = odra_test::env();
+        let vault = deploy_vault(&env);
+        let sim = vault.simulate_borrow(U256::from(1_000_000u64));
+        assert_eq!(sim.fee, U256::from(50_000u64)); // 5% of 1_000_000
+    }
+
+    // The headline: a repay's fee accrues to the pool, and the LP withdraws MORE
+    // CEP-18 than it deposited — realized yield.
+    #[test]
+    fn repay_generates_lp_yield() {
+        let env = odra_test::env();
+        let deployer = env.get_account(0); // admin + LP
+        let agent = env.get_account(1);
+        let merchant = env.get_account(2);
+
+        let mut token =
+            MockCep18::deploy(&env, MockCep18InitArgs { initial_supply: U256::from(1_000_000u64) });
+        let mut vault =
+            Fund402Vault::deploy(&env, Fund402VaultInitArgs { asset_token: token.address() });
+
+        // LP deposits 100_000 → 100_000 shares (empty pool, 1:1); value == deposit.
+        token.approve(&vault.address(), &U256::from(100_000u64));
+        vault.deposit_liquidity(U256::from(100_000u64));
+        assert_eq!(vault.get_lp_balance(deployer), U256::from(100_000u64));
+        assert_eq!(vault.get_lp_value(deployer), U256::from(100_000u64));
+
+        // Tier-3 agent borrows 10_000 and repays 10_500 (principal + 5% fee).
+        vault.award_reputation(agent, 250);
+        env.set_caller(agent);
+        let res = vault.borrow_and_pay(merchant, U256::from(10_000u64), U256::zero(), String::from("v"));
+        env.set_caller(deployer);
+        token.transfer(&agent, &U256::from(10_500u64));
+        env.set_caller(agent);
+        token.approve(&vault.address(), &U256::from(10_500u64));
+        vault.repay_loan(res.loan_id);
+
+        // The 500 fee is now pool value → the LP's shares are worth more.
+        env.set_caller(deployer);
+        assert_eq!(vault.get_lp_balance(deployer), U256::from(100_000u64)); // shares unchanged
+        assert_eq!(vault.get_lp_value(deployer), U256::from(100_500u64)); // +500 yield
+
+        // LP burns all shares and receives MORE than it deposited.
+        let before = token.balance_of(&deployer);
+        vault.withdraw_liquidity(U256::from(100_000u64));
+        let received = token.balance_of(&deployer) - before;
+        assert_eq!(received, U256::from(100_500u64)); // 100_000 in → 100_500 out
+        assert!(received > U256::from(100_000u64)); // YIELD
+        assert_eq!(vault.get_lp_balance(deployer), U256::zero());
+    }
+
+    // An agent can repay its newest loan without tracking the loan id.
+    #[test]
+    fn repay_latest_settles_newest_loan() {
+        let env = odra_test::env();
+        let deployer = env.get_account(0);
+        let agent = env.get_account(1);
+        let merchant = env.get_account(2);
+        let mut token =
+            MockCep18::deploy(&env, MockCep18InitArgs { initial_supply: U256::from(1_000_000u64) });
+        let mut vault =
+            Fund402Vault::deploy(&env, Fund402VaultInitArgs { asset_token: token.address() });
+        token.approve(&vault.address(), &U256::from(100_000u64));
+        vault.deposit_liquidity(U256::from(100_000u64));
+        vault.award_reputation(agent, 250);
+
+        env.set_caller(agent);
+        let res = vault.borrow_and_pay(merchant, U256::from(10_000u64), U256::zero(), String::from("v"));
+        assert_eq!(vault.get_agent_last_loan(agent), res.loan_id);
+        env.set_caller(deployer);
+        token.transfer(&agent, &U256::from(10_500u64));
+        env.set_caller(agent);
+        token.approve(&vault.address(), &U256::from(10_500u64));
+        vault.repay_latest(); // no loan id needed
+
+        assert!(vault.get_loan(res.loan_id).unwrap().repaid);
+        assert_eq!(vault.get_pool_stats().total_liquidity, U256::from(100_500u64)); // fee yield
+    }
+
+    // A later LP depositing the same tokens after yield accrues gets FEWER shares,
+    // so it cannot dilute the earlier LP's earned yield.
+    #[test]
+    fn shares_protect_earned_yield() {
+        let env = odra_test::env();
+        let lp1 = env.get_account(0);
+        let lp2 = env.get_account(3);
+        let agent = env.get_account(1);
+        let merchant = env.get_account(2);
+        let mut token =
+            MockCep18::deploy(&env, MockCep18InitArgs { initial_supply: U256::from(10_000_000u64) });
+        let mut vault =
+            Fund402Vault::deploy(&env, Fund402VaultInitArgs { asset_token: token.address() });
+
+        token.approve(&vault.address(), &U256::from(100_000u64));
+        vault.deposit_liquidity(U256::from(100_000u64)); // LP1: 100_000 shares
+
+        // One loan cycle accrues 500 yield.
+        vault.award_reputation(agent, 250);
+        env.set_caller(agent);
+        let res = vault.borrow_and_pay(merchant, U256::from(10_000u64), U256::zero(), String::from("v"));
+        env.set_caller(lp1);
+        token.transfer(&agent, &U256::from(10_500u64));
+        env.set_caller(agent);
+        token.approve(&vault.address(), &U256::from(10_500u64));
+        vault.repay_loan(res.loan_id);
+
+        // LP2 deposits the same 100_000 — but the pool is worth more, so fewer shares.
+        env.set_caller(lp1);
+        token.transfer(&lp2, &U256::from(100_000u64));
+        env.set_caller(lp2);
+        token.approve(&vault.address(), &U256::from(100_000u64));
+        vault.deposit_liquidity(U256::from(100_000u64));
+
+        assert_eq!(vault.get_lp_balance(lp1), U256::from(100_000u64));
+        assert!(vault.get_lp_balance(lp2) < vault.get_lp_balance(lp1));
+        assert!(vault.get_lp_value(lp1) >= U256::from(100_500u64)); // LP1 keeps its yield
     }
 }

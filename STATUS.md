@@ -28,6 +28,13 @@ No spin. What's real, what's simplified, what's left. Completion at the bottom.
   now run end-to-end through the published SDK.
 - **🔁 Repayment proven live**: `repay_loan` settled on-chain (deploy `357334fa…`) —
   collateral released, reputation `+10`.
+- **💰 Yield-bearing pool, proven live (vault v2 `ca4086d3…`)**: a **5% JIT credit fee**
+  on every borrow accrues to the share-based pool on repayment, so **LPs earn yield**.
+  Live: LP deposited `2_000_000`, an agent borrowed `1_000_000` and **repaid via
+  `repay_latest` (no loan id)**, the pool grew to `2_050_000`, and the LP **withdrew
+  `2_050_000` for its `2_000_000` deposit — `+50_000` realized yield**.
+  repay `80e90a43…`, LP withdraw `44318b5b…`. `repay_latest` is the auto-repay-from-
+  earnings primitive; it also removes the need to track loan ids off-chain.
 - **🤖 Autonomous agent + MCP, live**: `fund402-agent` (12 on-chain tools) +
   `fund402-mcp` (Groq TUI + MCP server). A fresh wallet was created → funded →
   Tier-3 → **borrowed (x402)** → repaid, entirely on-chain, driven from chat.
@@ -35,17 +42,20 @@ No spin. What's real, what's simplified, what's left. Completion at the bottom.
   the vault deploy on-chain via CSPR.cloud before proxying — same logic the SDK
   productizes and runs live.
 - **Dashboard reads** are real CSPR.cloud (`ft-token-ownership` / `ft-token-actions`).
-- **Tests** — 7 contract (incl. `full_loan_lifecycle`, `slash`) + gateway (4) +
-  agent-sdk signing/payload/facilitator + **SDK offline units (server + EIP-712) and
-  a live e2e**. Green.
+- **Tests** — **11 contract** (incl. `full_loan_lifecycle`, `slash`, **fee/yield,
+  `repay_latest`, share-dilution protection**) + gateway (4) + agent-sdk
+  signing/payload/facilitator + **SDK offline units, fund402-agent units (8),
+  fund402-agent-skills units (6)** + live e2e. All green.
 - **No mock data** in any production path — the only mock is `MockCep18` in the
   contract test module.
 
 ## ⚠️ Simplified / not fully wired (the honest gaps)
 
-1. **No autonomous `EarningStream`.** Repayment is real and proven live, but it's an
-   explicit call (agent tool / `repayLoanOnChain`), not auto-triggered from the
-   agent's own x402 revenue. The SRSD `EarningStream` contract is intentionally not built.
+1. **`EarningStream` is a primitive, not a scheduler.** The auto-repay-from-earnings
+   primitive exists and is proven live (`repay_latest` — the agent settles its newest
+   loan from its F402 balance, no loan id, fee → LP yield). What's *not* built is an
+   autonomous scheduler that triggers it off a revenue stream — repayment is still an
+   explicit call the agent (or a cron) makes.
 2. **Loan TTL/expiry is not enforced on-chain.** Loans store a `timestamp`;
    `slash_defaulted_loan` is admin-discretion with no expiry check (SRSD `loan_ttl`
    absent).
@@ -72,23 +82,25 @@ No spin. What's real, what's simplified, what's left. Completion at the bottom.
 
 | Layer | % | Note |
 |---|---|---|
-| Vault contract (core) | ~90% | works + deployed + proven; no on-chain TTL, no earning-stream |
+| Vault contract (core) | ~93% | deployed (v2) + proven; **yield-bearing pool + `repay_latest`**; 11/11 tests; only on-chain TTL missing |
 | EIP-712 / x402 signing | ~95% | live `/verify` = `isValid:true` |
-| **SDK (`@nickthelegend69/fund402`)** | ~93% | **published**; full server↔client↔vault loop **run live** on **both** credit paths (Tier-3 zero-collateral + Tier-1 auto-approve/escrow); Express/Hono/Next adapters |
+| **SDK (`@nickthelegend69/fund402`)** | ~94% | **published 0.1.3**; full loop **run live** both credit paths + **LP deposit/withdraw + `repayLatest`**; Express/Hono/Next adapters |
 | Agent + MCP | ~90% | 12 tools; create→fund→Tier3→borrow→repay **proven live**; Groq TUI + MCP server working |
+| Agent skills | ~95% | 6 `npx`-installable skills (incl. LP/yield); full borrow→repay→yield **verified live** |
 | Gateway (reference) | ~85% | superseded by the SDK as the productized, live-verified path |
 | Dashboard | ~70% | reads real; writes wired, not browser-tested |
 | Demo | ~80% | runs the real SDK; honest preview |
-| Tests | ~88% | strong core + SDK units + live e2e; no frontend integration tests |
-| Deploy + docs | ~95% | deployed, documented, scripted, published |
+| Tests | ~92% | 11 contract + SDK + agent (8) + skills (6) units + live e2e; no frontend integration tests |
+| Deploy + docs | ~96% | deployed, documented, scripted, published |
 
-**Overall ≈ 89%.** Core (contract + signing + SDK) ≈ 93%. The autonomous loop — agent
+**Overall ≈ 91%.** Core (contract + signing + SDK) ≈ 94%. The autonomous loop — agent
 borrows through a pool-settled paywall (zero-collateral **and** collateralized) and
-repays — is now **proven live end-to-end** (≈ 92%); only an automatic earning-stream
-trigger and on-chain TTL remain for full SRSD parity (≈ 70%). Hackathon-submittable: **yes**.
+repays from earnings (`repay_latest`), **with the fee becoming LP yield** — is **proven
+live end-to-end**. Only an automatic earning-stream *scheduler* and on-chain loan TTL
+remain for full SRSD parity. Hackathon-submittable: **yes**.
 
 ## Next, to close the remaining gap (priority order)
 
 1. Enforce loan TTL on-chain in `slash_defaulted_loan`.
 2. Browser-test CSPR.click deposit/withdraw.
-3. `EarningStream` auto-repay from x402 revenue (optional, post-hackathon).
+3. An autonomous scheduler that calls `repay_latest` off an x402 revenue stream (optional).

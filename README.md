@@ -17,12 +17,20 @@ on-chain. Details + every deploy link in **[DEPLOYMENT.md](./DEPLOYMENT.md)**.
 
 | | Package hash | |
 |---|---|---|
-| **Vault** | `664d99de146b9b573161a387d89fefc649677351d8a6d2acbe22109bf88f6b12` | [install ↗](https://testnet.cspr.live/deploy/f742b8a48d1585e0ff4853cb8dbde39fdd5dd4461373a348229bb3e256414327) |
+| **Vault v2** (yield-bearing) | `ca4086d3a7b1abf000d0a79e23a237bb484a14807e9438f2c56f3461073e1b2f` | [install ↗](https://testnet.cspr.live/deploy/4e15da97c4b556eddfa19686d4286ee386f80c31217102ed2fa50540820503ae) |
 | **CEP-18 "Fund402 USDC" (F402)** | `389cedc529cc553e2639884c9dcc5e6dcbeb3920f7f5ca5a39bf7f7b866bccd0` | [install ↗](https://testnet.cspr.live/deploy/43f55b98e2e26d9f6c7ddb527c80d8f0b37e2f60fe9ceaefb5006cbea4423430) |
 
 **The money shot:** an agent with **0 balance and 0 collateral** borrowed `1e6`
 F402 → the vault fronted it to the merchant (pool `100M → 99M`, merchant `+1M`).
 [`borrow_and_pay` deploy ↗](https://testnet.cspr.live/deploy/5fadfa774f9d87f0f0b4e0219cf89086cd93aa8677cb0da8e0edda3740b9be17)
+
+**💰 The LPs earn, too:** v2 charges a **5% JIT credit fee** that accrues to the pool on
+repayment. Proven live — an LP deposited `2_000_000`, an agent borrowed + **repaid via
+`repay_latest`** (no loan id), and the LP **withdrew `2_050_000` for its `2_000_000`
+deposit (+50k yield).**
+[repay ↗](https://testnet.cspr.live/deploy/80e90a43120b40524038a405088f3f83c4ce45674a9ff3e28c577a20552cba9e) ·
+[LP withdraw ↗](https://testnet.cspr.live/deploy/44318b5b303dab8dbbb3c3b26ac0f148bf7b44701996fbd446f17f9f7622023c)
+(v1 vault `664d99de…` remains live; v2 supersedes it.)
 
 ---
 
