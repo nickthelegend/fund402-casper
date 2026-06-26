@@ -26,6 +26,53 @@ F402 → the vault fronted it to the merchant (pool `100M → 99M`, merchant `+1
 
 ---
 
+## 📦 The SDK — `npm i @nickthelegend69/fund402`
+
+Fund402 ships as a **published, framework-agnostic SDK** so any developer can add
+*"x402 endpoints settled by a lending pool"* in a few lines —
+[**@nickthelegend69/fund402**](https://www.npmjs.com/package/@nickthelegend69/fund402)
+([repo](https://github.com/nickthelegend/fund402-sdk)).
+
+**Server (merchant)** — gate a route; the pool fronts the payment so callers can pay
+with an empty wallet. Drop-in for **Express / Hono / Next.js**:
+
+```ts
+import { expressPaywall } from "@nickthelegend69/fund402/express";
+app.use("/v", expressPaywall({
+  payTo, asset, price: "1000000", vaultContract,
+  csprCloudApiKey: process.env.CSPR_CLOUD_API_KEY,
+}));
+```
+
+**Client (agent)** — a drop-in `fetch` that borrows JIT and replays the request:
+
+```ts
+import { fund402Fetch } from "@nickthelegend69/fund402";
+const f = fund402Fetch({ agentSecretKey, agentPublicKey, vaultContract });
+const res = await f("https://merchant.example/v/price/BTC-USD"); // paid + served
+```
+
+✅ **Verified live, whole loop on casper-test**: a real `paywall()` server + a real
+`fund402Fetch()` agent → 402 → borrow from the pool → on-chain settlement verify →
+`200 + data`.
+[settlement deploy `96f30ddf…` ↗](https://testnet.cspr.live/deploy/96f30ddfac9b3b8bc04a9fe274b1c006aff398ac624e7360669a2c1f3dc28264)
+
+---
+
+## 🤖 Autonomous agent + MCP
+
+Beyond the SDK, an agent can drive the whole protocol from natural language:
+
+- **[fund402-agent](https://github.com/nickthelegend/fund402-agent)** — 12 on-chain
+  tools (create wallets, fund, deposit liquidity, award reputation, **borrow + x402**,
+  repay, sign/verify x402, balances).
+- **[fund402-mcp](https://github.com/nickthelegend/fund402-mcp)** — a **Groq TUI**
+  (chat → live on-chain tool calls) **+ an MCP server** for Claude Desktop. Verified
+  live: a wallet was created → funded → made Tier-3 → borrowed (x402) → repaid, all
+  on-chain, driven from chat.
+
+---
+
 ## The problem
 
 AI agents are productive but **credit-constrained**. The x402 protocol lets them
@@ -74,11 +121,13 @@ There is no credit primitive for machines. Fund402 is that primitive.
 
 ## Repository layout
 
-| Component | Path | What it is |
+| Component | Path / repo | What it is |
 |---|---|---|
-| **Gateway** | `src/app` | Next.js x402 gateway (`:3005`) — 402 challenge, on-chain verify, origin proxy |
-| **Vault** | `contracts/fund402_vault` | Odra/Rust contract — CEP-18 pool, tiered JIT loans, reputation |
-| **Agent SDK** | `packages/agent-sdk` | `@fund402/agent-sdk` — axios interceptor; builds + signs the x402 `exact` payload (official `@make-software/casper-x402`) and drives `borrow_and_pay` via casper-js-sdk v5 |
+| **Vault** | `contracts/fund402_vault` | Odra/Rust contract — CEP-18 pool, tiered JIT loans, on-chain reputation, borrow / repay / slash |
+| **SDK** (published) | [`fund402-sdk`](https://github.com/nickthelegend/fund402-sdk) → `@nickthelegend69/fund402` | Both sides: `paywall()` + Express/Hono/Next adapters (server) and `fund402Fetch()` + axios interceptor (client). The productized, framework-agnostic SDK. |
+| **Gateway** | `src/app` | Reference Next.js x402 gateway (`:3005`) — 402 challenge, on-chain verify, origin proxy |
+| **Agent SDK** | `packages/agent-sdk` | In-repo origin of the SDK — axios interceptor; builds + signs the x402 `exact` payload via a **manual** EIP-712 digest + `signAndAddAlgorithmBytes` (the `@make-software/casper-x402` CJS build is broken), driving `borrow_and_pay` on casper-js-sdk v5 |
+| **Agent + MCP** | [`fund402-agent`](https://github.com/nickthelegend/fund402-agent) · [`fund402-mcp`](https://github.com/nickthelegend/fund402-mcp) | 12-tool agent toolbox + Groq TUI + MCP server (Claude Desktop) |
 | **Scripts** | `scripts/e2e.mjs` | One-command-per-step testnet deploy + run |
 
 ## The 3-tier credit model
@@ -157,10 +206,19 @@ What's real, verified, and simplified is tracked candidly in **[STATUS.md](./STA
 The headline: signing is confirmed against the **live** facilitator, the vault is
 **deployed**, and a real loan **settled on-chain** — no mocks.
 
-## Related repos
+## The Fund402 ecosystem
 
-- **fund402-dashboard** — LP liquidity dashboard (deposit/withdraw via CSPR.click).
-- **fund402-demo** — live JIT-credit cockpit demo.
+- **[fund402-sdk](https://github.com/nickthelegend/fund402-sdk)** → npm
+  [`@nickthelegend69/fund402`](https://www.npmjs.com/package/@nickthelegend69/fund402)
+  — the SDK (create + pay pool-settled x402 endpoints).
+- **[fund402-agent](https://github.com/nickthelegend/fund402-agent)** — 12-tool
+  autonomous agent toolbox (wallets, funding, borrow/x402/repay).
+- **[fund402-mcp](https://github.com/nickthelegend/fund402-mcp)** — Groq TUI + MCP
+  server over the agent toolbox.
+- **[fund402-casper-dashboard](https://github.com/nickthelegend/fund402-casper-dashboard)**
+  — LP liquidity dashboard (deposit/withdraw via CSPR.click).
+- **[fund402-casper-demo](https://github.com/nickthelegend/fund402-casper-demo)**
+  — live JIT-credit cockpit demo.
 
 ## License
 
