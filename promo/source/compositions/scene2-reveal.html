@@ -1,0 +1,276 @@
+<template id="scene2-reveal-template">
+  <div
+    data-composition-id="scene2-reveal"
+    data-width="1920"
+    data-height="1080"
+    data-duration="8"
+  >
+    <div class="s2-canvas">
+      <div class="s2-grid"></div>
+      <div class="s2-glow"></div>
+
+      <div class="s2-lockup">
+        <div class="s2-mark">
+          <svg viewBox="0 0 100 100" width="132" height="132">
+            <defs>
+              <linearGradient id="s2g" x1="0" y1="0" x2="1" y2="1">
+                <stop offset="0" stop-color="#ff3b5c" />
+                <stop offset="0.55" stop-color="#f5b301" />
+                <stop offset="1" stop-color="#25d3a6" />
+              </linearGradient>
+            </defs>
+            <rect
+              class="s2-chip"
+              x="8"
+              y="8"
+              width="84"
+              height="84"
+              rx="22"
+              fill="#0f0f18"
+              stroke="url(#s2g)"
+              stroke-width="3"
+            />
+            <path
+              class="s2-bolt"
+              d="M56 24 L34 54 L48 54 L44 76 L66 46 L52 46 Z"
+              fill="url(#s2g)"
+            />
+          </svg>
+        </div>
+        <div class="s2-word"><span class="s2-fund">Fund</span><span class="s2-402">402</span></div>
+      </div>
+
+      <div class="s2-tag">Just-in-time credit&nbsp;<b>+</b>&nbsp;x402 settlement on Casper</div>
+
+      <div class="s2-term">
+        <div class="s2-prompt">
+          <span class="s2-dollar">$</span><span class="s2-cmd">npm i @nickthelegend69/fund402</span>
+          <span class="s2-cursor">▋</span>
+        </div>
+        <div class="s2-out">
+          <span class="s2-plus">+</span> @nickthelegend69/fund402<span class="s2-ver">@0.1.3</span>
+          <span class="s2-ok">✓ added</span>
+        </div>
+      </div>
+    </div>
+
+    <style>
+      [data-composition-id="scene2-reveal"] .s2-canvas {
+        width: 1920px;
+        height: 1080px;
+        background: radial-gradient(120% 90% at 50% 38%, #0c0c16 0%, #07070b 62%);
+        position: relative;
+        overflow: hidden;
+        font-family: "Inter", sans-serif;
+      }
+      [data-composition-id="scene2-reveal"] .s2-grid {
+        position: absolute;
+        inset: -2px;
+        background-image: linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px),
+          linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+        background-size: 64px 64px;
+        mask-image: radial-gradient(70% 70% at 50% 45%, #000 30%, transparent 78%);
+      }
+      [data-composition-id="scene2-reveal"] .s2-glow {
+        position: absolute;
+        left: 50%;
+        top: 410px;
+        width: 1100px;
+        height: 760px;
+        transform: translate(-50%, -50%);
+        background: radial-gradient(circle, rgba(91, 140, 255, 0.12), transparent 60%);
+        opacity: 0;
+        filter: blur(10px);
+      }
+      [data-composition-id="scene2-reveal"] .s2-lockup {
+        position: absolute;
+        left: 50%;
+        top: 300px;
+        transform: translate(-50%, -50%);
+        display: flex;
+        align-items: center;
+        gap: 34px;
+      }
+      [data-composition-id="scene2-reveal"] .s2-mark {
+        opacity: 0;
+        filter: drop-shadow(0 12px 40px rgba(245, 179, 1, 0.18));
+      }
+      [data-composition-id="scene2-reveal"] .s2-chip {
+        stroke-dasharray: 360;
+        stroke-dashoffset: 360;
+      }
+      [data-composition-id="scene2-reveal"] .s2-bolt {
+        opacity: 0;
+        transform-box: fill-box;
+        transform-origin: center;
+      }
+      [data-composition-id="scene2-reveal"] .s2-word {
+        font-size: 150px;
+        font-weight: 900;
+        letter-spacing: -0.04em;
+        line-height: 1;
+      }
+      [data-composition-id="scene2-reveal"] .s2-fund {
+        color: #f3f3f8;
+        opacity: 0;
+        display: inline-block;
+      }
+      [data-composition-id="scene2-reveal"] .s2-402 {
+        background: linear-gradient(100deg, #ff3b5c, #f5b301 55%, #25d3a6);
+        -webkit-background-clip: text;
+        background-clip: text;
+        color: transparent;
+        opacity: 0;
+        display: inline-block;
+      }
+      [data-composition-id="scene2-reveal"] .s2-tag {
+        position: absolute;
+        left: 0;
+        right: 0;
+        top: 540px;
+        text-align: center;
+        font-size: 42px;
+        font-weight: 500;
+        color: #9a9ab0;
+        letter-spacing: -0.005em;
+        opacity: 0;
+      }
+      [data-composition-id="scene2-reveal"] .s2-tag b {
+        color: #f5b301;
+        font-weight: 700;
+      }
+      [data-composition-id="scene2-reveal"] .s2-term {
+        position: absolute;
+        left: 50%;
+        top: 720px;
+        transform: translateX(-50%);
+        width: 880px;
+        background: linear-gradient(180deg, #12121d, #0e0e17);
+        border: 1px solid #262633;
+        border-radius: 14px;
+        padding: 28px 36px;
+        font-family: "JetBrains Mono", monospace;
+        box-shadow: 0 30px 70px rgba(0, 0, 0, 0.55);
+        opacity: 0;
+      }
+      [data-composition-id="scene2-reveal"] .s2-prompt {
+        font-size: 30px;
+        display: flex;
+        align-items: center;
+        gap: 14px;
+      }
+      [data-composition-id="scene2-reveal"] .s2-dollar {
+        color: #25d3a6;
+        font-weight: 700;
+      }
+      [data-composition-id="scene2-reveal"] .s2-cmd {
+        color: #e7e7f2;
+        white-space: nowrap;
+        overflow: hidden;
+        width: 0;
+      }
+      [data-composition-id="scene2-reveal"] .s2-cursor {
+        color: #5b8cff;
+        margin-left: -8px;
+      }
+      [data-composition-id="scene2-reveal"] .s2-out {
+        margin-top: 16px;
+        font-size: 26px;
+        color: #8b8b9e;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        opacity: 0;
+      }
+      [data-composition-id="scene2-reveal"] .s2-plus {
+        color: #25d3a6;
+        font-weight: 700;
+      }
+      [data-composition-id="scene2-reveal"] .s2-ver {
+        color: #f5b301;
+      }
+      [data-composition-id="scene2-reveal"] .s2-ok {
+        margin-left: auto;
+        color: #25d3a6;
+        font-weight: 600;
+        font-size: 23px;
+      }
+    </style>
+
+    <script src="https://cdn.jsdelivr.net/npm/gsap@3.14.2/dist/gsap.min.js"></script>
+    <script>
+      (function () {
+        const q = (s) => '[data-composition-id="scene2-reveal"] ' + s;
+        const tl = gsap.timeline({ paused: true });
+
+        tl.to(q(".s2-glow"), { opacity: 1, duration: 1.0, ease: "power2.out" }, 0.1);
+
+        // mark draws in
+        tl.to(q(".s2-mark"), { opacity: 1, duration: 0.3 }, 0.2);
+        tl.fromTo(
+          q(".s2-mark"),
+          { scale: 0.6, rotate: -12 },
+          { scale: 1, rotate: 0, duration: 0.8, ease: "back.out(1.6)" },
+          0.2,
+        );
+        tl.to(q(".s2-chip"), { strokeDashoffset: 0, duration: 0.8, ease: "power2.inOut" }, 0.3);
+        tl.fromTo(
+          q(".s2-bolt"),
+          { opacity: 0, scale: 0.3 },
+          { opacity: 1, scale: 1, duration: 0.4, ease: "back.out(2.2)" },
+          0.85,
+        );
+
+        // wordmark
+        tl.fromTo(
+          q(".s2-fund"),
+          { opacity: 0, x: -40 },
+          { opacity: 1, x: 0, duration: 0.6, ease: "power3.out" },
+          0.7,
+        );
+        tl.fromTo(
+          q(".s2-402"),
+          { opacity: 0, x: 40, scale: 0.9 },
+          { opacity: 1, x: 0, scale: 1, duration: 0.6, ease: "power3.out" },
+          0.95,
+        );
+
+        // tagline
+        tl.fromTo(
+          q(".s2-tag"),
+          { opacity: 0, y: 18 },
+          { opacity: 1, y: 0, duration: 0.6, ease: "power2.out" },
+          1.7,
+        );
+
+        // terminal
+        tl.fromTo(
+          q(".s2-term"),
+          { opacity: 0, y: 26 },
+          { opacity: 1, y: 0, duration: 0.5, ease: "power3.out" },
+          2.7,
+        );
+        tl.to(q(".s2-cmd"), { width: "auto", duration: 1.0, ease: "steps(28)" }, 3.0);
+        tl.to(q(".s2-cursor"), { opacity: 0.25, duration: 0.3, repeat: 4, yoyo: true }, 3.0);
+        tl.to(q(".s2-cursor"), { opacity: 0, duration: 0.2 }, 4.1);
+        tl.fromTo(
+          q(".s2-out"),
+          { opacity: 0, y: 8 },
+          { opacity: 1, y: 0, duration: 0.4, ease: "power2.out" },
+          4.25,
+        );
+
+        // float + exit
+        tl.to(q(".s2-lockup"), { y: "-=10", duration: 2.0, ease: "sine.inOut" }, 4.6);
+        tl.to(
+          q(".s2-lockup, .s2-tag, .s2-term"),
+          { opacity: 0, y: -18, duration: 0.45, ease: "power2.in" },
+          7.55,
+        );
+
+        window.__timelines = window.__timelines || {};
+        window.__timelines["scene2-reveal"] = tl;
+      })();
+    </script>
+  </div>
+</template>

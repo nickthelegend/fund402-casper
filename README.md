@@ -8,6 +8,12 @@
 Built for the **Casper Agentic Buildathon 2026**. Casper port of the original
 Stellar/Soroban Fund402.
 
+**▶ Watch the 45-second demo** — [`promo/fund402-promo.mp4`](./promo/fund402-promo.mp4)
+([how it was built](./promo/README.md)): the problem → the SDK → the live on-chain
+borrow→settle→serve flow → LP yield → the whole ecosystem.
+
+[![Fund402 demo](./promo/preview.jpg)](./promo/fund402-promo.mp4)
+
 ---
 
 ## ✅ Live on Casper testnet
@@ -227,6 +233,11 @@ The headline: signing is confirmed against the **live** facilitator, the vault i
   — LP liquidity dashboard (deposit/withdraw via CSPR.click).
 - **[fund402-casper-demo](https://github.com/nickthelegend/fund402-casper-demo)**
   — live JIT-credit cockpit demo.
+- **[clawback-casper](https://github.com/nickthelegend/clawback-casper)** — the
+  companion **settlement layer**: agent payment escrow with AI-adjudicated disputes
+  ("chargebacks for the machine economy"). Fund402 *fronts* payments; Clawback
+  *escrows* them with dispute resolution. Run both — credit on the way in, protection
+  on the way out.
 
 ## License
 

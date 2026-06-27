@@ -1,0 +1,286 @@
+<template id="scene3-code-template">
+  <div
+    data-composition-id="scene3-code"
+    data-width="1920"
+    data-height="1080"
+    data-duration="9.5"
+  >
+    <div class="s3-canvas">
+      <div class="s3-grid"></div>
+
+      <div class="s3-head">
+        <div class="s3-h1">Two functions.</div>
+        <div class="s3-h2">Drop-in. The agent pays from an empty wallet.</div>
+      </div>
+
+      <!-- SERVER card -->
+      <div class="s3-card s3-left">
+        <div class="s3-tab"><span class="s3-dot blue"></span>SERVER · charge for the call</div>
+        <div class="s3-code">
+          <div class="cl"><span class="com">// charge any route — issue + verify x402</span></div>
+          <div class="cl">
+            <span class="kw">import</span> { <span class="fn">paywall</span> } <span class="kw">from</span>
+            <span class="str">"@nickthelegend69/fund402"</span>;
+          </div>
+          <div class="cl">&nbsp;</div>
+          <div class="cl">
+            <span class="kw">export const</span> <span class="var">GET</span> =
+            <span class="fn">paywall</span>({
+          </div>
+          <div class="cl">
+            &nbsp;&nbsp;price: <span class="str">"1.00"</span>, <span class="com">// USDC</span>
+          </div>
+          <div class="cl">&nbsp;&nbsp;payTo: <span class="var">MERCHANT</span>,</div>
+          <div class="cl">&nbsp;&nbsp;network: <span class="str">"casper-test"</span>,</div>
+          <div class="cl">})(<span class="kw">async</span> (req) =&gt; {</div>
+          <div class="cl">
+            &nbsp;&nbsp;<span class="kw">return</span> Response.<span class="fn">json</span>(
+          </div>
+          <div class="cl">
+            &nbsp;&nbsp;&nbsp;&nbsp;<span class="kw">await</span>
+            <span class="fn">priceOf</span>(<span class="str">"BTC-USD"</span>));
+          </div>
+          <div class="cl">});</div>
+        </div>
+      </div>
+
+      <!-- CLIENT card -->
+      <div class="s3-card s3-right">
+        <div class="s3-tab"><span class="s3-dot teal"></span>CLIENT · pay with no balance</div>
+        <div class="s3-code">
+          <div class="cl"><span class="com">// one fetch — handles the whole 402 dance</span></div>
+          <div class="cl">
+            <span class="kw">import</span> { <span class="fn">fund402Fetch</span> }
+            <span class="kw">from</span> <span class="str">"@nickthelegend69/fund402"</span>;
+          </div>
+          <div class="cl">&nbsp;</div>
+          <div class="cl">
+            <span class="kw">const</span> res = <span class="kw">await</span>
+            <span class="fn">fund402Fetch</span>(url, {
+          </div>
+          <div class="cl">
+            &nbsp;&nbsp;wallet, <span class="com">// 0.00 USDC — no funds</span>
+          </div>
+          <div class="cl">&nbsp;&nbsp;vault: <span class="var">VAULT_PACKAGE</span>,</div>
+          <div class="cl">});</div>
+          <div class="cl">&nbsp;</div>
+          <div class="cl">
+            <span class="com">// 402 → pool fronts it → settled → 200</span>
+          </div>
+          <div class="cl">
+            <span class="kw">const</span> price = <span class="kw">await</span> res.<span class="fn">json</span>();
+          </div>
+        </div>
+      </div>
+
+      <div class="s3-foot">
+        <span class="s3-foot-ic">◆</span> no balance required — the liquidity pool fronts every call
+      </div>
+    </div>
+
+    <style>
+      [data-composition-id="scene3-code"] .s3-canvas {
+        width: 1920px;
+        height: 1080px;
+        background: radial-gradient(130% 100% at 50% 0%, #0c0c16 0%, #07070b 60%);
+        position: relative;
+        overflow: hidden;
+        font-family: "Inter", sans-serif;
+      }
+      [data-composition-id="scene3-code"] .s3-grid {
+        position: absolute;
+        inset: -2px;
+        background-image: linear-gradient(rgba(255, 255, 255, 0.025) 1px, transparent 1px),
+          linear-gradient(90deg, rgba(255, 255, 255, 0.025) 1px, transparent 1px);
+        background-size: 80px 80px;
+        mask-image: radial-gradient(90% 80% at 50% 40%, #000 40%, transparent 85%);
+      }
+      [data-composition-id="scene3-code"] .s3-head {
+        position: absolute;
+        left: 90px;
+        top: 70px;
+      }
+      [data-composition-id="scene3-code"] .s3-h1 {
+        font-size: 64px;
+        font-weight: 900;
+        letter-spacing: -0.03em;
+        color: #f3f3f8;
+        opacity: 0;
+      }
+      [data-composition-id="scene3-code"] .s3-h2 {
+        font-size: 30px;
+        font-weight: 500;
+        color: #8b8b9e;
+        margin-top: 6px;
+        opacity: 0;
+      }
+      [data-composition-id="scene3-code"] .s3-card {
+        position: absolute;
+        top: 246px;
+        width: 850px;
+        height: 632px;
+        background: linear-gradient(180deg, #12121d, #0d0d16);
+        border: 1px solid #262633;
+        border-radius: 16px;
+        box-shadow: 0 40px 90px rgba(0, 0, 0, 0.55);
+        overflow: hidden;
+        opacity: 0;
+      }
+      [data-composition-id="scene3-code"] .s3-left {
+        left: 90px;
+      }
+      [data-composition-id="scene3-code"] .s3-right {
+        left: 980px;
+      }
+      [data-composition-id="scene3-code"] .s3-tab {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 20px 30px;
+        font-family: "JetBrains Mono", monospace;
+        font-size: 21px;
+        font-weight: 600;
+        letter-spacing: 0.04em;
+        color: #9a9ab0;
+        border-bottom: 1px solid #20202c;
+        background: rgba(255, 255, 255, 0.015);
+      }
+      [data-composition-id="scene3-code"] .s3-dot {
+        width: 11px;
+        height: 11px;
+        border-radius: 50%;
+      }
+      [data-composition-id="scene3-code"] .s3-dot.blue {
+        background: #5b8cff;
+        box-shadow: 0 0 12px #5b8cff;
+      }
+      [data-composition-id="scene3-code"] .s3-dot.teal {
+        background: #25d3a6;
+        box-shadow: 0 0 12px #25d3a6;
+      }
+      [data-composition-id="scene3-code"] .s3-code {
+        padding: 26px 34px;
+        font-family: "JetBrains Mono", monospace;
+        font-size: 27px;
+        line-height: 1.52;
+      }
+      [data-composition-id="scene3-code"] .cl {
+        opacity: 0;
+        white-space: nowrap;
+        color: #c9c9da;
+      }
+      [data-composition-id="scene3-code"] .com {
+        color: #56566c;
+        font-style: italic;
+      }
+      [data-composition-id="scene3-code"] .kw {
+        color: #ff7b9c;
+      }
+      [data-composition-id="scene3-code"] .fn {
+        color: #5b8cff;
+        font-weight: 600;
+      }
+      [data-composition-id="scene3-code"] .str {
+        color: #25d3a6;
+      }
+      [data-composition-id="scene3-code"] .var {
+        color: #f5b301;
+      }
+      [data-composition-id="scene3-code"] .s3-foot {
+        position: absolute;
+        left: 0;
+        right: 0;
+        top: 928px;
+        text-align: center;
+        font-family: "JetBrains Mono", monospace;
+        font-size: 27px;
+        font-weight: 500;
+        color: #25d3a6;
+        opacity: 0;
+      }
+      [data-composition-id="scene3-code"] .s3-foot-ic {
+        color: #25d3a6;
+        margin-right: 8px;
+      }
+    </style>
+
+    <script src="https://cdn.jsdelivr.net/npm/gsap@3.14.2/dist/gsap.min.js"></script>
+    <script>
+      (function () {
+        const q = (s) => '[data-composition-id="scene3-code"] ' + s;
+        const tl = gsap.timeline({ paused: true });
+
+        tl.fromTo(
+          q(".s3-h1"),
+          { opacity: 0, y: 22 },
+          { opacity: 1, y: 0, duration: 0.55, ease: "power3.out" },
+          0.1,
+        );
+        tl.fromTo(
+          q(".s3-h2"),
+          { opacity: 0, y: 14 },
+          { opacity: 1, y: 0, duration: 0.5, ease: "power2.out" },
+          0.4,
+        );
+
+        // cards frame in
+        tl.fromTo(
+          q(".s3-left"),
+          { opacity: 0, x: -30, y: 14 },
+          { opacity: 1, x: 0, y: 0, duration: 0.55, ease: "power3.out" },
+          0.7,
+        );
+        tl.fromTo(
+          q(".s3-right"),
+          { opacity: 0, x: 30, y: 14 },
+          { opacity: 1, x: 0, y: 0, duration: 0.55, ease: "power3.out" },
+          0.95,
+        );
+
+        // reveal code lines, left then right, staggered
+        tl.to(
+          q(".s3-left .cl"),
+          { opacity: 1, duration: 0.18, stagger: 0.16, ease: "none" },
+          1.3,
+        );
+        tl.to(
+          q(".s3-right .cl"),
+          { opacity: 1, duration: 0.18, stagger: 0.16, ease: "none" },
+          2.6,
+        );
+
+        // highlight the two function calls
+        tl.fromTo(
+          q(".s3-left .fn"),
+          { textShadow: "0 0 0 rgba(91,140,255,0)" },
+          { textShadow: "0 0 16px rgba(91,140,255,0.6)", duration: 0.4, yoyo: true, repeat: 1 },
+          4.4,
+        );
+        tl.fromTo(
+          q(".s3-right .fn"),
+          { textShadow: "0 0 0 rgba(37,211,166,0)" },
+          { textShadow: "0 0 16px rgba(37,211,166,0.6)", duration: 0.4, yoyo: true, repeat: 1 },
+          4.8,
+        );
+
+        // footer line
+        tl.fromTo(
+          q(".s3-foot"),
+          { opacity: 0, y: 14 },
+          { opacity: 1, y: 0, duration: 0.5, ease: "power2.out" },
+          5.6,
+        );
+
+        // exit
+        tl.to(
+          q(".s3-head, .s3-card, .s3-foot"),
+          { opacity: 0, y: -16, duration: 0.45, ease: "power2.in" },
+          9.05,
+        );
+
+        window.__timelines = window.__timelines || {};
+        window.__timelines["scene3-code"] = tl;
+      })();
+    </script>
+  </div>
+</template>

@@ -1,0 +1,216 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=1920, height=1080" />
+    <title>Fund402 — Just-in-time credit for AI agents on Casper</title>
+    <script src="https://cdn.jsdelivr.net/npm/gsap@3.14.2/dist/gsap.min.js"></script>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600;700&display=block"
+      rel="stylesheet"
+    />
+    <style>
+      :root {
+        --bg: #07070b;
+        --ink: #f3f3f8;
+        --muted: #8b8b9e;
+        --red: #ff3b5c;
+        --teal: #25d3a6;
+        --gold: #f5b301;
+        --blue: #5b8cff;
+        --sans: "Inter", -apple-system, system-ui, sans-serif;
+        --mono: "JetBrains Mono", ui-monospace, "SF Mono", monospace;
+      }
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+      html,
+      body {
+        width: 1920px;
+        height: 1080px;
+        overflow: hidden;
+        background: var(--bg);
+        font-family: "Inter", sans-serif;
+        color: var(--ink);
+        -webkit-font-smoothing: antialiased;
+      }
+      #root {
+        position: absolute;
+        inset: 0;
+      }
+      .scene {
+        position: absolute;
+        inset: 0;
+        width: 1920px;
+        height: 1080px;
+      }
+      /* ---- persistent premium chrome (above scenes) ---- */
+      #chrome {
+        position: absolute;
+        inset: 0;
+        pointer-events: none;
+        z-index: 50;
+      }
+      #grain {
+        position: absolute;
+        inset: 0;
+        opacity: 0.045;
+        mix-blend-mode: screen;
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+      }
+      #vignette {
+        position: absolute;
+        inset: 0;
+        background: radial-gradient(120% 80% at 50% 42%, transparent 56%, rgba(0, 0, 0, 0.5) 100%);
+      }
+      #progress-track {
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 3px;
+        background: rgba(255, 255, 255, 0.05);
+      }
+      #progress-fill {
+        position: absolute;
+        top: 0;
+        left: 0;
+        height: 3px;
+        width: 1920px;
+        transform-origin: left;
+        background: linear-gradient(90deg, var(--red), var(--gold) 55%, var(--teal));
+      }
+      .chrome-tag {
+        position: absolute;
+        bottom: 42px;
+        font-family: "JetBrains Mono", ui-monospace, monospace;
+        font-size: 22px;
+        font-weight: 500;
+        letter-spacing: 0.02em;
+        opacity: 0;
+      }
+      #tag-left {
+        left: 80px;
+        color: var(--muted);
+      }
+      #tag-left b {
+        color: var(--ink);
+        font-weight: 700;
+      }
+      #tag-right {
+        right: 80px;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        color: var(--muted);
+      }
+      #tag-right .dot {
+        width: 9px;
+        height: 9px;
+        border-radius: 50%;
+        background: var(--teal);
+        box-shadow: 0 0 12px var(--teal);
+      }
+    </style>
+  </head>
+  <body>
+    <div
+      id="root"
+      data-composition-id="main"
+      data-start="0"
+      data-duration="45"
+      data-width="1920"
+      data-height="1080"
+    >
+      <!-- Scene 1 — the problem -->
+      <div
+        id="scene-1"
+        class="scene"
+        data-composition-id="scene1-hook"
+        data-composition-src="compositions/scene1-hook.html"
+        data-start="0"
+        data-duration="7.5"
+        data-track-index="1"
+        data-width="1920"
+        data-height="1080"
+      ></div>
+
+      <!-- Scene 2 — the reveal -->
+      <div
+        id="scene-2"
+        class="scene"
+        data-composition-id="scene2-reveal"
+        data-composition-src="compositions/scene2-reveal.html"
+        data-start="7.5"
+        data-duration="8"
+        data-track-index="1"
+        data-width="1920"
+        data-height="1080"
+      ></div>
+
+      <!-- Scene 3 — the code -->
+      <div
+        id="scene-3"
+        class="scene"
+        data-composition-id="scene3-code"
+        data-composition-src="compositions/scene3-code.html"
+        data-start="15.5"
+        data-duration="9.5"
+        data-track-index="1"
+        data-width="1920"
+        data-height="1080"
+      ></div>
+
+      <!-- Scene 4 — the live on-chain flow -->
+      <div
+        id="scene-4"
+        class="scene"
+        data-composition-id="scene4-flow"
+        data-composition-src="compositions/scene4-flow.html"
+        data-start="25"
+        data-duration="10.5"
+        data-track-index="1"
+        data-width="1920"
+        data-height="1080"
+      ></div>
+
+      <!-- Scene 5 — yield, ecosystem, CTA -->
+      <div
+        id="scene-5"
+        class="scene"
+        data-composition-id="scene5-cta"
+        data-composition-src="compositions/scene5-cta.html"
+        data-start="35.5"
+        data-duration="9.5"
+        data-track-index="1"
+        data-width="1920"
+        data-height="1080"
+      ></div>
+
+      <!-- Persistent chrome -->
+      <div id="chrome" data-composition-id="chrome" data-start="0" data-duration="45">
+        <div id="vignette"></div>
+        <div id="grain"></div>
+        <div id="progress-track"><div id="progress-fill"></div></div>
+        <div id="tag-left" class="chrome-tag">npm i <b>@nickthelegend69/fund402</b></div>
+        <div id="tag-right" class="chrome-tag"><span class="dot"></span>casper&nbsp;testnet · live</div>
+      </div>
+    </div>
+
+    <script>
+      window.__timelines = window.__timelines || {};
+      const main = gsap.timeline({ paused: true });
+
+      // progress bar fills across the whole 45s
+      main.fromTo("#progress-fill", { scaleX: 0 }, { scaleX: 1, duration: 45, ease: "none" }, 0);
+
+      // corner chrome fades in after the cold open, holds, fades before the end
+      main.to("#tag-left, #tag-right", { opacity: 1, duration: 0.6, ease: "power2.out" }, 8);
+      main.to("#tag-left, #tag-right", { opacity: 0, duration: 0.5, ease: "power2.in" }, 44);
+
+      window.__timelines["main"] = main;
+    </script>
+  </body>
+</html>

@@ -1,0 +1,373 @@
+<template id="scene4-flow-template">
+  <div
+    data-composition-id="scene4-flow"
+    data-width="1920"
+    data-height="1080"
+    data-duration="10.5"
+  >
+    <div class="s4-canvas">
+      <div class="s4-grid"></div>
+
+      <div class="s4-head">
+        <div class="s4-h1">Borrowed. Settled. Served.</div>
+        <div class="s4-h2">An empty wallet just paid — on-chain, in one call.</div>
+      </div>
+
+      <!-- wires -->
+      <div class="s4-wire w-ab"><span class="s4-pulse"></span></div>
+      <div class="s4-wire w-bc"><span class="s4-pulse"></span></div>
+      <div class="s4-wire w-cd"><span class="s4-pulse"></span></div>
+      <div class="s4-wlabel l-ab">402 → borrow</div>
+      <div class="s4-wlabel l-bc">settle on-chain</div>
+      <div class="s4-wlabel l-cd">served</div>
+
+      <!-- A: agent -->
+      <div class="s4-node n-a">
+        <div class="s4-ntop">◇ agent · x402 client</div>
+        <div class="s4-ntitle">Autonomous Agent</div>
+        <div class="s4-chip red">wallet 0.00 USDC</div>
+      </div>
+
+      <!-- B: vault (hero) -->
+      <div class="s4-node n-b hero">
+        <div class="s4-ntop">◆ Fund402 vault</div>
+        <div class="s4-ntitle">Liquidity Pool</div>
+        <div class="s4-mono gold">borrow_and_pay()</div>
+        <div class="s4-chip gold">fronts 1,000,000</div>
+      </div>
+
+      <!-- C: casper -->
+      <div class="s4-node n-c">
+        <div class="s4-ntop">⬡ casper testnet</div>
+        <div class="s4-ntitle s4-settle">settling…</div>
+        <div class="s4-deploy">deploy 96f30ddf…</div>
+      </div>
+
+      <!-- D: result -->
+      <div class="s4-node n-d">
+        <div class="s4-200">200 OK</div>
+        <div class="s4-ntop">BTC-USD</div>
+        <div class="s4-price"><span class="s4-price-val">$60,120.00</span></div>
+      </div>
+
+      <!-- receipt -->
+      <div class="s4-receipt">
+        <span class="s4-rcheck">✓</span>
+        <span class="s4-rf">settled · <b>casper-test</b></span>
+        <span class="s4-rdiv"></span>
+        <span class="s4-rf">deploy <b>96f30ddf…</b></span>
+        <span class="s4-rdiv"></span>
+        <span class="s4-rf">amount <b>1,000,000</b></span>
+        <span class="s4-rdiv"></span>
+        <span class="s4-rf">collateral <b>0</b></span>
+        <span class="s4-rdiv"></span>
+        <span class="s4-rf status">status <b>processed</b></span>
+        <span class="s4-rdiv"></span>
+        <span class="s4-rf link">↗ cspr.live</span>
+      </div>
+    </div>
+
+    <style>
+      [data-composition-id="scene4-flow"] .s4-canvas {
+        width: 1920px;
+        height: 1080px;
+        background: radial-gradient(130% 100% at 50% 8%, #0c0c16 0%, #07070b 58%);
+        position: relative;
+        overflow: hidden;
+        font-family: "Inter", sans-serif;
+      }
+      [data-composition-id="scene4-flow"] .s4-grid {
+        position: absolute;
+        inset: -2px;
+        background-image: linear-gradient(rgba(255, 255, 255, 0.025) 1px, transparent 1px),
+          linear-gradient(90deg, rgba(255, 255, 255, 0.025) 1px, transparent 1px);
+        background-size: 80px 80px;
+        mask-image: radial-gradient(95% 80% at 50% 45%, #000 45%, transparent 88%);
+      }
+      [data-composition-id="scene4-flow"] .s4-head {
+        position: absolute;
+        left: 0;
+        right: 0;
+        top: 96px;
+        text-align: center;
+      }
+      [data-composition-id="scene4-flow"] .s4-h1 {
+        font-size: 66px;
+        font-weight: 900;
+        letter-spacing: -0.03em;
+        color: #f3f3f8;
+        opacity: 0;
+      }
+      [data-composition-id="scene4-flow"] .s4-h2 {
+        font-size: 30px;
+        font-weight: 500;
+        color: #8b8b9e;
+        margin-top: 8px;
+        opacity: 0;
+      }
+      [data-composition-id="scene4-flow"] .s4-node {
+        position: absolute;
+        top: 380px;
+        height: 252px;
+        background: linear-gradient(180deg, #13131e, #0e0e17);
+        border: 1px solid #262633;
+        border-radius: 16px;
+        padding: 26px 28px;
+        box-shadow: 0 30px 70px rgba(0, 0, 0, 0.5);
+        opacity: 0;
+      }
+      [data-composition-id="scene4-flow"] .n-a {
+        left: 90px;
+        width: 350px;
+      }
+      [data-composition-id="scene4-flow"] .n-b {
+        left: 547px;
+        width: 420px;
+        top: 356px;
+        height: 300px;
+      }
+      [data-composition-id="scene4-flow"] .n-c {
+        left: 1074px;
+        width: 350px;
+      }
+      [data-composition-id="scene4-flow"] .n-d {
+        left: 1530px;
+        width: 300px;
+      }
+      [data-composition-id="scene4-flow"] .hero {
+        border: 1px solid transparent;
+        background: linear-gradient(#0f0f18, #0f0f18) padding-box,
+          linear-gradient(135deg, #ff3b5c, #f5b301 55%, #25d3a6) border-box;
+        box-shadow: 0 30px 80px rgba(245, 179, 1, 0.12), 0 0 0 1px rgba(245, 179, 1, 0.06);
+      }
+      [data-composition-id="scene4-flow"] .s4-ntop {
+        font-family: "JetBrains Mono", monospace;
+        font-size: 20px;
+        color: #7a7a90;
+        letter-spacing: 0.02em;
+      }
+      [data-composition-id="scene4-flow"] .s4-ntitle {
+        font-size: 34px;
+        font-weight: 800;
+        color: #f3f3f8;
+        margin-top: 14px;
+        letter-spacing: -0.02em;
+      }
+      [data-composition-id="scene4-flow"] .s4-mono {
+        font-family: "JetBrains Mono", monospace;
+        font-size: 26px;
+        margin-top: 16px;
+        font-weight: 600;
+      }
+      [data-composition-id="scene4-flow"] .gold {
+        color: #f5b301;
+      }
+      [data-composition-id="scene4-flow"] .red {
+        color: #ff5c78;
+      }
+      [data-composition-id="scene4-flow"] .s4-chip {
+        display: inline-block;
+        margin-top: 18px;
+        padding: 11px 18px;
+        border-radius: 10px;
+        font-family: "JetBrains Mono", monospace;
+        font-size: 23px;
+        font-weight: 600;
+      }
+      [data-composition-id="scene4-flow"] .s4-chip.red {
+        background: rgba(255, 59, 92, 0.1);
+        border: 1px solid rgba(255, 59, 92, 0.3);
+        color: #ff6e88;
+      }
+      [data-composition-id="scene4-flow"] .s4-chip.gold {
+        background: rgba(245, 179, 1, 0.1);
+        border: 1px solid rgba(245, 179, 1, 0.32);
+        color: #f5b301;
+      }
+      [data-composition-id="scene4-flow"] .s4-settle.done {
+        color: #25d3a6;
+      }
+      [data-composition-id="scene4-flow"] .s4-deploy {
+        font-family: "JetBrains Mono", monospace;
+        font-size: 21px;
+        color: #5b8cff;
+        margin-top: 18px;
+        opacity: 0;
+      }
+      [data-composition-id="scene4-flow"] .s4-200 {
+        font-size: 52px;
+        font-weight: 900;
+        color: #25d3a6;
+        letter-spacing: -0.02em;
+        text-shadow: 0 0 30px rgba(37, 211, 166, 0.4);
+      }
+      [data-composition-id="scene4-flow"] .n-d .s4-ntop {
+        margin-top: 18px;
+      }
+      [data-composition-id="scene4-flow"] .s4-price {
+        font-family: "JetBrains Mono", monospace;
+        font-size: 34px;
+        font-weight: 700;
+        color: #f3f3f8;
+        margin-top: 8px;
+        opacity: 0;
+      }
+      /* wires */
+      [data-composition-id="scene4-flow"] .s4-wire {
+        position: absolute;
+        top: 504px;
+        height: 3px;
+        background: #2a2a3a;
+        transform: scaleX(0);
+        transform-origin: left;
+      }
+      [data-composition-id="scene4-flow"] .w-ab {
+        left: 440px;
+        width: 107px;
+      }
+      [data-composition-id="scene4-flow"] .w-bc {
+        left: 967px;
+        width: 107px;
+      }
+      [data-composition-id="scene4-flow"] .w-cd {
+        left: 1424px;
+        width: 106px;
+      }
+      [data-composition-id="scene4-flow"] .s4-pulse {
+        position: absolute;
+        top: -4px;
+        left: 0;
+        width: 11px;
+        height: 11px;
+        border-radius: 50%;
+        background: #f5b301;
+        box-shadow: 0 0 16px 3px rgba(245, 179, 1, 0.7);
+        opacity: 0;
+      }
+      [data-composition-id="scene4-flow"] .s4-wlabel {
+        position: absolute;
+        top: 452px;
+        font-family: "JetBrains Mono", monospace;
+        font-size: 19px;
+        color: #8b8b9e;
+        text-align: center;
+        opacity: 0;
+      }
+      [data-composition-id="scene4-flow"] .l-ab {
+        left: 440px;
+        width: 107px;
+      }
+      [data-composition-id="scene4-flow"] .l-bc {
+        left: 967px;
+        width: 107px;
+      }
+      [data-composition-id="scene4-flow"] .l-cd {
+        left: 1424px;
+        width: 106px;
+      }
+      /* receipt */
+      [data-composition-id="scene4-flow"] .s4-receipt {
+        position: absolute;
+        left: 50%;
+        top: 812px;
+        transform: translateX(-50%);
+        display: flex;
+        align-items: center;
+        gap: 22px;
+        padding: 22px 38px;
+        background: linear-gradient(180deg, #111119, #0d0d15);
+        border: 1px solid #243029;
+        border-radius: 14px;
+        font-family: "JetBrains Mono", monospace;
+        font-size: 24px;
+        color: #9a9ab0;
+        box-shadow: 0 24px 60px rgba(0, 0, 0, 0.5);
+        opacity: 0;
+        white-space: nowrap;
+      }
+      [data-composition-id="scene4-flow"] .s4-rcheck {
+        color: #25d3a6;
+        font-size: 28px;
+        font-weight: 700;
+      }
+      [data-composition-id="scene4-flow"] .s4-rf b {
+        color: #e7e7f2;
+        font-weight: 600;
+      }
+      [data-composition-id="scene4-flow"] .s4-rf.status b {
+        color: #25d3a6;
+      }
+      [data-composition-id="scene4-flow"] .s4-rf.link {
+        color: #5b8cff;
+      }
+      [data-composition-id="scene4-flow"] .s4-rdiv {
+        width: 1px;
+        height: 26px;
+        background: #2a2a3a;
+      }
+    </style>
+
+    <script src="https://cdn.jsdelivr.net/npm/gsap@3.14.2/dist/gsap.min.js"></script>
+    <script>
+      (function () {
+        const sel = '[data-composition-id="scene4-flow"] ';
+        const q = (s) => sel + s;
+        const tl = gsap.timeline({ paused: true });
+        const priceEl = document.querySelector(q(".s4-price-val"));
+        const fmt = (n) =>
+          "$" + n.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+        const price = { v: 60120 };
+
+        // title
+        tl.fromTo(q(".s4-h1"), { opacity: 0, y: 22 }, { opacity: 1, y: 0, duration: 0.55, ease: "power3.out" }, 0.1);
+        tl.fromTo(q(".s4-h2"), { opacity: 0, y: 14 }, { opacity: 1, y: 0, duration: 0.5, ease: "power2.out" }, 0.4);
+
+        // nodes in
+        tl.fromTo(q(".n-a"), { opacity: 0, y: 24, scale: 0.97 }, { opacity: 1, y: 0, scale: 1, duration: 0.5, ease: "power3.out" }, 0.8);
+        tl.fromTo(q(".n-b"), { opacity: 0, y: 24, scale: 0.97 }, { opacity: 1, y: 0, scale: 1, duration: 0.5, ease: "power3.out" }, 1.0);
+        tl.fromTo(q(".n-c"), { opacity: 0, y: 24, scale: 0.97 }, { opacity: 1, y: 0, scale: 1, duration: 0.5, ease: "power3.out" }, 1.2);
+        tl.fromTo(q(".n-d"), { opacity: 0, y: 24, scale: 0.97 }, { opacity: 1, y: 0, scale: 1, duration: 0.5, ease: "power3.out" }, 1.4);
+
+        // --- A -> B ---
+        tl.to(q(".w-ab"), { scaleX: 1, duration: 0.4, ease: "power2.inOut" }, 2.0);
+        tl.to(q(".l-ab"), { opacity: 1, duration: 0.3 }, 2.1);
+        tl.fromTo(q(".w-ab .s4-pulse"), { opacity: 1, x: 0 }, { x: 96, duration: 0.5, ease: "power1.in" }, 2.2);
+        tl.set(q(".w-ab .s4-pulse"), { opacity: 0 }, 2.7);
+        // vault fires
+        tl.fromTo(q(".n-b .s4-chip"), { scale: 0.8, opacity: 0.4 }, { scale: 1, opacity: 1, duration: 0.4, ease: "back.out(2)" }, 2.7);
+
+        // --- B -> C ---
+        tl.to(q(".w-bc"), { scaleX: 1, duration: 0.4, ease: "power2.inOut" }, 3.1);
+        tl.to(q(".l-bc"), { opacity: 1, duration: 0.3 }, 3.2);
+        tl.fromTo(q(".w-bc .s4-pulse"), { opacity: 1, x: 0 }, { x: 96, duration: 0.5, ease: "power1.in" }, 3.3);
+        tl.set(q(".w-bc .s4-pulse"), { opacity: 0 }, 3.8);
+        // casper settles
+        tl.call(() => { const e = document.querySelector(q(".s4-settle")); if (e) { e.textContent = "✓ processed"; e.classList.add("done"); } }, null, 3.9);
+        tl.fromTo(q(".n-c"), { boxShadow: "0 0 0 rgba(37,211,166,0)" }, { boxShadow: "0 0 40px rgba(37,211,166,0.3)", duration: 0.3, yoyo: true, repeat: 1 }, 3.9);
+        tl.to(q(".s4-deploy"), { opacity: 1, duration: 0.4, ease: "power2.out" }, 4.2);
+
+        // --- C -> D ---
+        tl.to(q(".w-cd"), { scaleX: 1, duration: 0.4, ease: "power2.inOut" }, 4.7);
+        tl.to(q(".l-cd"), { opacity: 1, duration: 0.3 }, 4.8);
+        tl.fromTo(q(".w-cd .s4-pulse"), { opacity: 1, x: 0 }, { x: 95, duration: 0.5, ease: "power1.in" }, 4.9);
+        tl.set(q(".w-cd .s4-pulse"), { opacity: 0 }, 5.4);
+        // 200 + price ticks
+        tl.fromTo(q(".s4-200"), { scale: 1.4, opacity: 0 }, { scale: 1, opacity: 1, duration: 0.45, ease: "back.out(2)" }, 5.4);
+        tl.to(q(".s4-price"), { opacity: 1, duration: 0.35, ease: "power2.out" }, 5.45);
+        tl.to(price, { v: 64217.5, duration: 1.0, ease: "power2.out", onUpdate() { if (priceEl) priceEl.textContent = fmt(price.v); } }, 5.5);
+
+        // receipt
+        tl.fromTo(q(".s4-receipt"), { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 0.55, ease: "power3.out" }, 6.7);
+        tl.fromTo(q(".s4-rf, .s4-rcheck, .s4-rdiv"), { opacity: 0, y: 8 }, { opacity: 1, y: 0, duration: 0.3, stagger: 0.07, ease: "power2.out" }, 6.9);
+        // processed pulse
+        tl.fromTo(q(".s4-rf.status b"), { textShadow: "0 0 0 rgba(37,211,166,0)" }, { textShadow: "0 0 18px rgba(37,211,166,0.8)", duration: 0.5, yoyo: true, repeat: 2 }, 8.2);
+
+        // exit
+        tl.to(q(".s4-head, .s4-node, .s4-receipt, .s4-wire, .s4-wlabel"), { opacity: 0, y: -16, duration: 0.45, ease: "power2.in" }, 10.05);
+
+        window.__timelines = window.__timelines || {};
+        window.__timelines["scene4-flow"] = tl;
+      })();
+    </script>
+  </div>
+</template>
