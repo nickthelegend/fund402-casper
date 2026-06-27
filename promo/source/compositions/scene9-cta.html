@@ -1,0 +1,222 @@
+<template id="scene9-cta-template">
+  <div
+    data-composition-id="scene9-cta"
+    data-width="1920"
+    data-height="1080"
+    data-duration="9"
+  >
+    <div class="s9-canvas">
+      <div class="s9-grid"></div>
+      <div class="s9-glow"></div>
+
+      <div class="s9-lockup">
+        <div class="s9-unit">
+          <svg viewBox="0 0 100 100" width="74" height="74">
+            <defs>
+              <linearGradient id="s9fg" x1="0" y1="0" x2="1" y2="1">
+                <stop offset="0" stop-color="#ff3b5c" />
+                <stop offset="0.55" stop-color="#f5b301" />
+                <stop offset="1" stop-color="#25d3a6" />
+              </linearGradient>
+            </defs>
+            <rect x="8" y="8" width="84" height="84" rx="22" fill="#0f0f18" stroke="url(#s9fg)" stroke-width="3" />
+            <path d="M56 24 L34 54 L48 54 L44 76 L66 46 L52 46 Z" fill="url(#s9fg)" />
+          </svg>
+          <div class="s9-word"><span class="s9-wf">Fund</span><span class="s9-w4">402</span></div>
+        </div>
+
+        <div class="s9-plus">+</div>
+
+        <div class="s9-unit">
+          <svg viewBox="0 0 100 112" width="68" height="76">
+            <defs>
+              <linearGradient id="s9cg" x1="0" y1="0" x2="1" y2="1">
+                <stop offset="0" stop-color="#c4b5ff" />
+                <stop offset="1" stop-color="#7c6cff" />
+              </linearGradient>
+            </defs>
+            <path d="M50 6 L88 20 V54 C88 82 70 98 50 106 C30 98 12 82 12 54 V20 Z" fill="#0f0f18" stroke="url(#s9cg)" stroke-width="3" />
+            <path d="M33 55 L45 68 L69 41" fill="none" stroke="url(#s9cg)" stroke-width="7" stroke-linecap="round" stroke-linejoin="round" />
+          </svg>
+          <div class="s9-word s9-cbword">Clawback</div>
+        </div>
+      </div>
+
+      <div class="s9-inout">
+        <span class="s9-io teal">credit on the way <b>in</b></span>
+        <span class="s9-iodot">·</span>
+        <span class="s9-io violet">protection on the way <b>out</b></span>
+      </div>
+
+      <div class="s9-tagline">The credit &amp; settlement layer for the machine economy.</div>
+
+      <div class="s9-pills">
+        <div class="s9-pill prime"><span class="s9-pic">$</span>npm i @nickthelegend69/fund402</div>
+        <div class="s9-pill"><span class="s9-pic gh">⌥</span>github.com/nickthelegend</div>
+      </div>
+
+      <div class="s9-foot">casper testnet · open source · Casper Agentic Buildathon 2026</div>
+    </div>
+
+    <style>
+      [data-composition-id="scene9-cta"] .s9-canvas {
+        width: 1920px;
+        height: 1080px;
+        background: radial-gradient(120% 100% at 50% 50%, #0c0c16 0%, #07070b 60%);
+        position: relative;
+        overflow: hidden;
+        font-family: "Inter", sans-serif;
+      }
+      [data-composition-id="scene9-cta"] .s9-grid {
+        position: absolute;
+        inset: -2px;
+        background-image: linear-gradient(rgba(255, 255, 255, 0.022) 1px, transparent 1px),
+          linear-gradient(90deg, rgba(255, 255, 255, 0.022) 1px, transparent 1px);
+        background-size: 80px 80px;
+        mask-image: radial-gradient(85% 85% at 50% 50%, #000 38%, transparent 84%);
+      }
+      [data-composition-id="scene9-cta"] .s9-glow {
+        position: absolute;
+        left: 50%;
+        top: 50%;
+        width: 1400px;
+        height: 820px;
+        transform: translate(-50%, -50%);
+        background: radial-gradient(circle, rgba(120, 110, 200, 0.1), transparent 62%);
+        opacity: 0;
+        filter: blur(12px);
+      }
+      [data-composition-id="scene9-cta"] .s9-lockup {
+        position: absolute;
+        left: 0;
+        right: 0;
+        top: 360px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 36px;
+        opacity: 0;
+      }
+      [data-composition-id="scene9-cta"] .s9-unit {
+        display: flex;
+        align-items: center;
+        gap: 20px;
+      }
+      [data-composition-id="scene9-cta"] .s9-word {
+        font-size: 84px;
+        font-weight: 900;
+        letter-spacing: -0.04em;
+      }
+      [data-composition-id="scene9-cta"] .s9-wf { color: #f3f3f8; }
+      [data-composition-id="scene9-cta"] .s9-w4 {
+        background: linear-gradient(100deg, #ff3b5c, #f5b301 55%, #25d3a6);
+        -webkit-background-clip: text;
+        background-clip: text;
+        color: transparent;
+      }
+      [data-composition-id="scene9-cta"] .s9-cbword {
+        background: linear-gradient(100deg, #c4b5ff, #a18cff 55%, #7c6cff);
+        -webkit-background-clip: text;
+        background-clip: text;
+        color: transparent;
+      }
+      [data-composition-id="scene9-cta"] .s9-plus {
+        font-size: 56px;
+        font-weight: 300;
+        color: #56566c;
+      }
+      [data-composition-id="scene9-cta"] .s9-inout {
+        position: absolute;
+        left: 0;
+        right: 0;
+        top: 500px;
+        text-align: center;
+        font-family: "JetBrains Mono", monospace;
+        font-size: 27px;
+        opacity: 0;
+      }
+      [data-composition-id="scene9-cta"] .s9-io.teal { color: #25d3a6; }
+      [data-composition-id="scene9-cta"] .s9-io.violet { color: #a18cff; }
+      [data-composition-id="scene9-cta"] .s9-io b { font-weight: 700; }
+      [data-composition-id="scene9-cta"] .s9-iodot { color: #56566c; margin: 0 18px; }
+      [data-composition-id="scene9-cta"] .s9-tagline {
+        position: absolute;
+        left: 0;
+        right: 0;
+        top: 566px;
+        text-align: center;
+        font-size: 40px;
+        font-weight: 500;
+        color: #c9c9da;
+        opacity: 0;
+      }
+      [data-composition-id="scene9-cta"] .s9-pills {
+        position: absolute;
+        left: 0;
+        right: 0;
+        top: 676px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 22px;
+      }
+      [data-composition-id="scene9-cta"] .s9-pill {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 18px 30px;
+        border-radius: 12px;
+        font-family: "JetBrains Mono", monospace;
+        font-size: 28px;
+        color: #c9c9da;
+        background: #12121d;
+        border: 1px solid #262633;
+        opacity: 0;
+      }
+      [data-composition-id="scene9-cta"] .s9-pill.prime {
+        color: #07070b;
+        background: linear-gradient(100deg, #ffd152, #f5b301);
+        border: none;
+        font-weight: 600;
+      }
+      [data-composition-id="scene9-cta"] .s9-pic { font-weight: 700; opacity: 0.7; }
+      [data-composition-id="scene9-cta"] .s9-pill.prime .s9-pic { color: #7a5a00; opacity: 1; }
+      [data-composition-id="scene9-cta"] .s9-pic.gh { color: #5b8cff; }
+      [data-composition-id="scene9-cta"] .s9-foot {
+        position: absolute;
+        left: 0;
+        right: 0;
+        top: 812px;
+        text-align: center;
+        font-family: "JetBrains Mono", monospace;
+        font-size: 21px;
+        color: #56566c;
+        opacity: 0;
+      }
+    </style>
+
+    <script src="https://cdn.jsdelivr.net/npm/gsap@3.14.2/dist/gsap.min.js"></script>
+    <script>
+      (function () {
+        const q = (s) => '[data-composition-id="scene9-cta"] ' + s;
+        const tl = gsap.timeline({ paused: true });
+
+        tl.to(q(".s9-glow"), { opacity: 1, duration: 1.2, ease: "power2.out" }, 0.1);
+        tl.fromTo(q(".s9-lockup"), { opacity: 0, y: 26, scale: 0.96 }, { opacity: 1, y: 0, scale: 1, duration: 0.6, ease: "power3.out" }, 0.3);
+        tl.fromTo(q(".s9-inout"), { opacity: 0, y: 12 }, { opacity: 1, y: 0, duration: 0.5, ease: "power2.out" }, 1.1);
+        tl.fromTo(q(".s9-tagline"), { opacity: 0, y: 14 }, { opacity: 1, y: 0, duration: 0.55, ease: "power2.out" }, 1.6);
+        tl.fromTo(q(".s9-pill.prime"), { opacity: 0, y: 14 }, { opacity: 1, y: 0, duration: 0.45, ease: "power2.out" }, 2.2);
+        tl.fromTo(q(".s9-pill:not(.prime)"), { opacity: 0, y: 14 }, { opacity: 1, y: 0, duration: 0.45, ease: "power2.out" }, 2.4);
+        tl.fromTo(q(".s9-foot"), { opacity: 0 }, { opacity: 1, duration: 0.5 }, 2.9);
+
+        // hold — glow pulses on both wordmarks + the prime pill
+        tl.fromTo(q(".s9-w4"), { filter: "brightness(1)" }, { filter: "brightness(1.25)", duration: 0.9, yoyo: true, repeat: 2, ease: "sine.inOut" }, 3.4);
+        tl.fromTo(q(".s9-cbword"), { filter: "brightness(1)" }, { filter: "brightness(1.25)", duration: 0.9, yoyo: true, repeat: 2, ease: "sine.inOut" }, 3.7);
+        tl.to(q(".s9-pill.prime"), { boxShadow: "0 0 38px rgba(245,179,1,0.4)", duration: 1.0, yoyo: true, repeat: 1, ease: "sine.inOut" }, 3.6);
+
+        window.__timelines = window.__timelines || {};
+        window.__timelines["scene9-cta"] = tl;
+      })();
+    </script>
+  </div>
+</template>

@@ -1,0 +1,221 @@
+<template id="scene6-clawback-intro-template">
+  <div
+    data-composition-id="scene6-clawback-intro"
+    data-width="1920"
+    data-height="1080"
+    data-duration="9"
+  >
+    <div class="s6-canvas">
+      <div class="s6-grid"></div>
+      <div class="s6-glow"></div>
+
+      <!-- framing: credit in / protection out -->
+      <div class="s6-frame">
+        <span class="s6-fchip in">Fund402 · credit <b>in</b> ▸</span>
+        <span class="s6-fagent">agent pays agent</span>
+        <span class="s6-fchip out">▸ protection <b>out</b></span>
+      </div>
+
+      <div class="s6-lockup">
+        <svg class="s6-mark" viewBox="0 0 100 112" width="124" height="138">
+          <defs>
+            <linearGradient id="s6cbg" x1="0" y1="0" x2="1" y2="1">
+              <stop offset="0" stop-color="#c4b5ff" />
+              <stop offset="1" stop-color="#7c6cff" />
+            </linearGradient>
+          </defs>
+          <path
+            class="s6-shield"
+            d="M50 6 L88 20 V54 C88 82 70 98 50 106 C30 98 12 82 12 54 V20 Z"
+            fill="#0f0f18"
+            stroke="url(#s6cbg)"
+            stroke-width="3"
+          />
+          <path
+            class="s6-check"
+            d="M33 55 L45 68 L69 41"
+            fill="none"
+            stroke="url(#s6cbg)"
+            stroke-width="7"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          />
+        </svg>
+        <div class="s6-word">Clawback</div>
+      </div>
+
+      <div class="s6-tag">Agent payment <b>escrow</b> with <b>AI-adjudicated</b> disputes.</div>
+      <div class="s6-sub">Chargebacks for the machine economy.</div>
+      <div class="s6-note">A separate settlement layer — Fund402 <i>fronts</i> the payment, Clawback <i>escrows</i> it.</div>
+    </div>
+
+    <style>
+      [data-composition-id="scene6-clawback-intro"] .s6-canvas {
+        width: 1920px;
+        height: 1080px;
+        background: radial-gradient(125% 100% at 50% 40%, #0e0c18 0%, #07070b 62%);
+        position: relative;
+        overflow: hidden;
+        font-family: "Inter", sans-serif;
+      }
+      [data-composition-id="scene6-clawback-intro"] .s6-grid {
+        position: absolute;
+        inset: -2px;
+        background-image: linear-gradient(rgba(255, 255, 255, 0.025) 1px, transparent 1px),
+          linear-gradient(90deg, rgba(255, 255, 255, 0.025) 1px, transparent 1px);
+        background-size: 72px 72px;
+        mask-image: radial-gradient(70% 70% at 50% 45%, #000 30%, transparent 80%);
+      }
+      [data-composition-id="scene6-clawback-intro"] .s6-glow {
+        position: absolute;
+        left: 50%;
+        top: 460px;
+        width: 1100px;
+        height: 720px;
+        transform: translate(-50%, -50%);
+        background: radial-gradient(circle, rgba(161, 140, 255, 0.16), transparent 60%);
+        opacity: 0;
+        filter: blur(10px);
+      }
+      [data-composition-id="scene6-clawback-intro"] .s6-frame {
+        position: absolute;
+        left: 0;
+        right: 0;
+        top: 196px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 26px;
+        opacity: 0;
+      }
+      [data-composition-id="scene6-clawback-intro"] .s6-fchip {
+        font-family: "JetBrains Mono", monospace;
+        font-size: 23px;
+        padding: 10px 20px;
+        border-radius: 10px;
+        border: 1px solid #262633;
+        background: #11111c;
+        color: #8b8b9e;
+      }
+      [data-composition-id="scene6-clawback-intro"] .s6-fchip.in b {
+        color: #25d3a6;
+      }
+      [data-composition-id="scene6-clawback-intro"] .s6-fchip.out {
+        border-color: rgba(161, 140, 255, 0.4);
+        color: #c4b5ff;
+      }
+      [data-composition-id="scene6-clawback-intro"] .s6-fchip.out b {
+        color: #a18cff;
+      }
+      [data-composition-id="scene6-clawback-intro"] .s6-fagent {
+        font-family: "JetBrains Mono", monospace;
+        font-size: 21px;
+        color: #56566c;
+      }
+      [data-composition-id="scene6-clawback-intro"] .s6-lockup {
+        position: absolute;
+        left: 50%;
+        top: 430px;
+        transform: translate(-50%, -50%);
+        display: flex;
+        align-items: center;
+        gap: 30px;
+      }
+      [data-composition-id="scene6-clawback-intro"] .s6-mark {
+        opacity: 0;
+        filter: drop-shadow(0 14px 44px rgba(124, 108, 255, 0.3));
+      }
+      [data-composition-id="scene6-clawback-intro"] .s6-shield {
+        stroke-dasharray: 330;
+        stroke-dashoffset: 330;
+      }
+      [data-composition-id="scene6-clawback-intro"] .s6-check {
+        stroke-dasharray: 70;
+        stroke-dashoffset: 70;
+      }
+      [data-composition-id="scene6-clawback-intro"] .s6-word {
+        font-size: 132px;
+        font-weight: 900;
+        letter-spacing: -0.04em;
+        background: linear-gradient(100deg, #c4b5ff, #a18cff 50%, #7c6cff);
+        -webkit-background-clip: text;
+        background-clip: text;
+        color: transparent;
+        opacity: 0;
+      }
+      [data-composition-id="scene6-clawback-intro"] .s6-tag {
+        position: absolute;
+        left: 0;
+        right: 0;
+        top: 632px;
+        text-align: center;
+        font-size: 42px;
+        font-weight: 500;
+        color: #c9c9da;
+        opacity: 0;
+      }
+      [data-composition-id="scene6-clawback-intro"] .s6-tag b {
+        color: #a18cff;
+        font-weight: 700;
+      }
+      [data-composition-id="scene6-clawback-intro"] .s6-sub {
+        position: absolute;
+        left: 0;
+        right: 0;
+        top: 706px;
+        text-align: center;
+        font-size: 30px;
+        font-weight: 600;
+        color: #7a7a90;
+        opacity: 0;
+      }
+      [data-composition-id="scene6-clawback-intro"] .s6-note {
+        position: absolute;
+        left: 0;
+        right: 0;
+        top: 800px;
+        text-align: center;
+        font-size: 26px;
+        color: #8b8b9e;
+        opacity: 0;
+      }
+      [data-composition-id="scene6-clawback-intro"] .s6-note i {
+        font-style: normal;
+        color: #c4b5ff;
+        font-weight: 600;
+      }
+    </style>
+
+    <script src="https://cdn.jsdelivr.net/npm/gsap@3.14.2/dist/gsap.min.js"></script>
+    <script>
+      (function () {
+        const q = (s) => '[data-composition-id="scene6-clawback-intro"] ' + s;
+        const tl = gsap.timeline({ paused: true });
+
+        tl.to(q(".s6-glow"), { opacity: 1, duration: 1.1, ease: "power2.out" }, 0.1);
+        tl.fromTo(q(".s6-frame"), { opacity: 0, y: 12 }, { opacity: 1, y: 0, duration: 0.6, ease: "power2.out" }, 0.2);
+
+        // shield draws
+        tl.to(q(".s6-mark"), { opacity: 1, duration: 0.3 }, 0.9);
+        tl.fromTo(q(".s6-mark"), { scale: 0.7, y: 10 }, { scale: 1, y: 0, duration: 0.8, ease: "back.out(1.5)" }, 0.9);
+        tl.to(q(".s6-shield"), { strokeDashoffset: 0, duration: 0.9, ease: "power2.inOut" }, 1.0);
+        tl.to(q(".s6-check"), { strokeDashoffset: 0, duration: 0.5, ease: "power2.out" }, 1.7);
+
+        // wordmark
+        tl.fromTo(q(".s6-word"), { opacity: 0, x: 30 }, { opacity: 1, x: 0, duration: 0.6, ease: "power3.out" }, 1.5);
+
+        // copy
+        tl.fromTo(q(".s6-tag"), { opacity: 0, y: 16 }, { opacity: 1, y: 0, duration: 0.55, ease: "power2.out" }, 2.4);
+        tl.fromTo(q(".s6-sub"), { opacity: 0, y: 12 }, { opacity: 1, y: 0, duration: 0.5, ease: "power2.out" }, 3.0);
+        tl.fromTo(q(".s6-note"), { opacity: 0, y: 12 }, { opacity: 1, y: 0, duration: 0.5, ease: "power2.out" }, 3.6);
+
+        // float + exit
+        tl.to(q(".s6-lockup"), { y: "-=8", duration: 2.2, ease: "sine.inOut" }, 4.2);
+        tl.to(q(".s6-frame, .s6-lockup, .s6-tag, .s6-sub, .s6-note"), { opacity: 0, y: -16, duration: 0.45, ease: "power2.in" }, 8.55);
+
+        window.__timelines = window.__timelines || {};
+        window.__timelines["scene6-clawback-intro"] = tl;
+      })();
+    </script>
+  </div>
+</template>

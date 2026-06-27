@@ -8,9 +8,10 @@
 Built for the **Casper Agentic Buildathon 2026**. Casper port of the original
 Stellar/Soroban Fund402.
 
-**▶ Watch the 45-second demo** — [`promo/fund402-promo.mp4`](./promo/fund402-promo.mp4)
-([how it was built](./promo/README.md)): the problem → the SDK → the live on-chain
-borrow→settle→serve flow → LP yield → the whole ecosystem.
+**▶ Watch the 90-second demo** — [`promo/fund402-promo.mp4`](./promo/fund402-promo.mp4)
+([how it was built](./promo/README.md)): two acts — **Fund402** (problem → SDK → live
+borrow→settle→serve → LP yield) and **Clawback** (escrow → AI-adjudicated release or
+clawback) → the whole stack.
 
 [![Fund402 demo](./promo/preview.jpg)](./promo/fund402-promo.mp4)
 

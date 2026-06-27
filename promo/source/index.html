@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=1920, height=1080" />
-    <title>Fund402 — Just-in-time credit for AI agents on Casper</title>
+    <title>Fund402 + Clawback — credit & settlement for AI agents on Casper</title>
     <script src="https://cdn.jsdelivr.net/npm/gsap@3.14.2/dist/gsap.min.js"></script>
     <link
       href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600;700&display=block"
@@ -18,8 +18,7 @@
         --teal: #25d3a6;
         --gold: #f5b301;
         --blue: #5b8cff;
-        --sans: "Inter", -apple-system, system-ui, sans-serif;
-        --mono: "JetBrains Mono", ui-monospace, "SF Mono", monospace;
+        --violet: #a18cff;
       }
       * {
         margin: 0;
@@ -80,7 +79,7 @@
         height: 3px;
         width: 1920px;
         transform-origin: left;
-        background: linear-gradient(90deg, var(--red), var(--gold) 55%, var(--teal));
+        background: linear-gradient(90deg, var(--red), var(--gold) 40%, var(--teal) 70%, var(--violet));
       }
       .chrome-tag {
         position: absolute;
@@ -120,11 +119,11 @@
       id="root"
       data-composition-id="main"
       data-start="0"
-      data-duration="45"
+      data-duration="90"
       data-width="1920"
       data-height="1080"
     >
-      <!-- Scene 1 — the problem -->
+      <!-- ACT I — Fund402 (credit) -->
       <div
         id="scene-1"
         class="scene"
@@ -137,7 +136,6 @@
         data-height="1080"
       ></div>
 
-      <!-- Scene 2 — the reveal -->
       <div
         id="scene-2"
         class="scene"
@@ -150,7 +148,6 @@
         data-height="1080"
       ></div>
 
-      <!-- Scene 3 — the code -->
       <div
         id="scene-3"
         class="scene"
@@ -163,7 +160,6 @@
         data-height="1080"
       ></div>
 
-      <!-- Scene 4 — the live on-chain flow -->
       <div
         id="scene-4"
         class="scene"
@@ -176,12 +172,11 @@
         data-height="1080"
       ></div>
 
-      <!-- Scene 5 — yield, ecosystem, CTA -->
       <div
         id="scene-5"
         class="scene"
-        data-composition-id="scene5-cta"
-        data-composition-src="compositions/scene5-cta.html"
+        data-composition-id="scene5-yield"
+        data-composition-src="compositions/scene5-yield.html"
         data-start="35.5"
         data-duration="9.5"
         data-track-index="1"
@@ -189,8 +184,58 @@
         data-height="1080"
       ></div>
 
+      <!-- ACT II — Clawback (settlement) -->
+      <div
+        id="scene-6"
+        class="scene"
+        data-composition-id="scene6-clawback-intro"
+        data-composition-src="compositions/scene6-clawback-intro.html"
+        data-start="45"
+        data-duration="9"
+        data-track-index="1"
+        data-width="1920"
+        data-height="1080"
+      ></div>
+
+      <div
+        id="scene-7"
+        class="scene"
+        data-composition-id="scene7-clawback-flow"
+        data-composition-src="compositions/scene7-clawback-flow.html"
+        data-start="54"
+        data-duration="17"
+        data-track-index="1"
+        data-width="1920"
+        data-height="1080"
+      ></div>
+
+      <!-- ACT III — stack + CTA -->
+      <div
+        id="scene-8"
+        class="scene"
+        data-composition-id="scene8-ecosystem"
+        data-composition-src="compositions/scene8-ecosystem.html"
+        data-start="71"
+        data-duration="10"
+        data-track-index="1"
+        data-width="1920"
+        data-height="1080"
+      ></div>
+
+      <div
+        id="scene-9"
+        class="scene"
+        data-composition-id="scene9-cta"
+        data-composition-src="compositions/scene9-cta.html"
+        data-start="81"
+        data-duration="9"
+        data-track-index="1"
+        data-width="1920"
+        data-height="1080"
+      ></div>
+
       <!-- Persistent chrome -->
-      <div id="chrome" data-composition-id="chrome" data-start="0" data-duration="45">
+      <div id="chrome" data-composition-id="chrome" data-start="0" data-duration="90">
         <div id="vignette"></div>
         <div id="grain"></div>
         <div id="progress-track"><div id="progress-fill"></div></div>
@@ -203,12 +248,12 @@
       window.__timelines = window.__timelines || {};
       const main = gsap.timeline({ paused: true });
 
-      // progress bar fills across the whole 45s
-      main.fromTo("#progress-fill", { scaleX: 0 }, { scaleX: 1, duration: 45, ease: "none" }, 0);
+      // progress bar fills across the whole 90s
+      main.fromTo("#progress-fill", { scaleX: 0 }, { scaleX: 1, duration: 90, ease: "none" }, 0);
 
       // corner chrome fades in after the cold open, holds, fades before the end
       main.to("#tag-left, #tag-right", { opacity: 1, duration: 0.6, ease: "power2.out" }, 8);
-      main.to("#tag-left, #tag-right", { opacity: 0, duration: 0.5, ease: "power2.in" }, 44);
+      main.to("#tag-left, #tag-right", { opacity: 0, duration: 0.5, ease: "power2.in" }, 89);
 
       window.__timelines["main"] = main;
     </script>

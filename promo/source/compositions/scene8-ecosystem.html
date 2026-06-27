@@ -1,0 +1,206 @@
+<template id="scene8-ecosystem-template">
+  <div
+    data-composition-id="scene8-ecosystem"
+    data-width="1920"
+    data-height="1080"
+    data-duration="10"
+  >
+    <div class="s8-canvas">
+      <div class="s8-grid"></div>
+
+      <div class="s8-head">
+        <div class="s8-h1">One <b>npm install</b>. A whole stack.</div>
+        <div class="s8-cmd">$ npm i @nickthelegend69/fund402</div>
+      </div>
+
+      <div class="s8-spine"></div>
+
+      <div class="s8-cards">
+        <div class="s8-card k1">
+          <div class="s8-cic">⬢</div>
+          <div class="s8-cname">SDK</div>
+          <div class="s8-crole">paywall() + fund402Fetch()</div>
+          <div class="s8-crepo">@nickthelegend69/fund402</div>
+        </div>
+        <div class="s8-card k2">
+          <div class="s8-cic">◇</div>
+          <div class="s8-cname">Agent</div>
+          <div class="s8-crole">12 on-chain tools</div>
+          <div class="s8-crepo">fund402-agent</div>
+        </div>
+        <div class="s8-card k3">
+          <div class="s8-cic">⌘</div>
+          <div class="s8-cname">MCP</div>
+          <div class="s8-crole">Groq TUI + MCP server</div>
+          <div class="s8-crepo">fund402-mcp</div>
+        </div>
+        <div class="s8-card k4">
+          <div class="s8-cic">✦</div>
+          <div class="s8-cname">Skills</div>
+          <div class="s8-crole">teach any coding agent</div>
+          <div class="s8-crepo">npx skills add</div>
+        </div>
+        <div class="s8-card k5">
+          <div class="s8-cic">⚖</div>
+          <div class="s8-cname">Clawback</div>
+          <div class="s8-crole">escrow + AI disputes</div>
+          <div class="s8-crepo">clawback-casper</div>
+        </div>
+      </div>
+
+      <div class="s8-foot">
+        <span class="s8-dot"></span>live on casper testnet · 8 open-source repos
+      </div>
+    </div>
+
+    <style>
+      [data-composition-id="scene8-ecosystem"] .s8-canvas {
+        width: 1920px;
+        height: 1080px;
+        background: radial-gradient(125% 100% at 50% 40%, #0c0c16 0%, #07070b 60%);
+        position: relative;
+        overflow: hidden;
+        font-family: "Inter", sans-serif;
+      }
+      [data-composition-id="scene8-ecosystem"] .s8-grid {
+        position: absolute;
+        inset: -2px;
+        background-image: linear-gradient(rgba(255, 255, 255, 0.022) 1px, transparent 1px),
+          linear-gradient(90deg, rgba(255, 255, 255, 0.022) 1px, transparent 1px);
+        background-size: 80px 80px;
+        mask-image: radial-gradient(90% 80% at 50% 48%, #000 40%, transparent 88%);
+      }
+      [data-composition-id="scene8-ecosystem"] .s8-head {
+        position: absolute;
+        left: 0;
+        right: 0;
+        top: 210px;
+        text-align: center;
+      }
+      [data-composition-id="scene8-ecosystem"] .s8-h1 {
+        font-size: 66px;
+        font-weight: 900;
+        letter-spacing: -0.03em;
+        color: #f3f3f8;
+        opacity: 0;
+      }
+      [data-composition-id="scene8-ecosystem"] .s8-h1 b {
+        color: #25d3a6;
+        font-weight: 900;
+      }
+      [data-composition-id="scene8-ecosystem"] .s8-cmd {
+        font-family: "JetBrains Mono", monospace;
+        font-size: 28px;
+        color: #8b8b9e;
+        margin-top: 14px;
+        opacity: 0;
+      }
+      [data-composition-id="scene8-ecosystem"] .s8-spine {
+        position: absolute;
+        left: 244px;
+        right: 244px;
+        top: 605px;
+        height: 2px;
+        background: linear-gradient(90deg, #5b8cff, #25d3a6, #f5b301, #ff3b5c, #a18cff);
+        opacity: 0.5;
+        transform: scaleX(0);
+        transform-origin: center;
+      }
+      [data-composition-id="scene8-ecosystem"] .s8-cards {
+        position: absolute;
+        left: 79px;
+        top: 500px;
+        display: flex;
+        gap: 28px;
+      }
+      [data-composition-id="scene8-ecosystem"] .s8-card {
+        width: 330px;
+        height: 212px;
+        background: linear-gradient(180deg, #13131e, #0e0e17);
+        border: 1px solid #262633;
+        border-radius: 16px;
+        padding: 24px 26px;
+        box-shadow: 0 26px 56px rgba(0, 0, 0, 0.45);
+        opacity: 0;
+      }
+      [data-composition-id="scene8-ecosystem"] .s8-cic {
+        font-size: 36px;
+        line-height: 1;
+      }
+      [data-composition-id="scene8-ecosystem"] .s8-cname {
+        font-size: 36px;
+        font-weight: 800;
+        color: #f3f3f8;
+        margin-top: 14px;
+        letter-spacing: -0.01em;
+      }
+      [data-composition-id="scene8-ecosystem"] .s8-crole {
+        font-size: 22px;
+        color: #9a9ab0;
+        margin-top: 8px;
+      }
+      [data-composition-id="scene8-ecosystem"] .s8-crepo {
+        font-family: "JetBrains Mono", monospace;
+        font-size: 18px;
+        color: #56566c;
+        margin-top: 14px;
+      }
+      [data-composition-id="scene8-ecosystem"] .k1 .s8-cic { color: #5b8cff; }
+      [data-composition-id="scene8-ecosystem"] .k2 .s8-cic { color: #25d3a6; }
+      [data-composition-id="scene8-ecosystem"] .k3 .s8-cic { color: #f5b301; }
+      [data-composition-id="scene8-ecosystem"] .k4 .s8-cic { color: #ff3b5c; }
+      [data-composition-id="scene8-ecosystem"] .k5 .s8-cic { color: #a18cff; }
+      [data-composition-id="scene8-ecosystem"] .k5 {
+        border-color: rgba(161, 140, 255, 0.32);
+      }
+      [data-composition-id="scene8-ecosystem"] .s8-foot {
+        position: absolute;
+        left: 0;
+        right: 0;
+        top: 800px;
+        text-align: center;
+        font-family: "JetBrains Mono", monospace;
+        font-size: 24px;
+        color: #8b8b9e;
+        opacity: 0;
+      }
+      [data-composition-id="scene8-ecosystem"] .s8-dot {
+        display: inline-block;
+        width: 9px;
+        height: 9px;
+        border-radius: 50%;
+        background: #25d3a6;
+        box-shadow: 0 0 12px #25d3a6;
+        margin-right: 12px;
+        vertical-align: middle;
+      }
+    </style>
+
+    <script src="https://cdn.jsdelivr.net/npm/gsap@3.14.2/dist/gsap.min.js"></script>
+    <script>
+      (function () {
+        const q = (s) => '[data-composition-id="scene8-ecosystem"] ' + s;
+        const tl = gsap.timeline({ paused: true });
+
+        tl.fromTo(q(".s8-h1"), { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 0.55, ease: "power3.out" }, 0.1);
+        tl.fromTo(q(".s8-cmd"), { opacity: 0, y: 12 }, { opacity: 1, y: 0, duration: 0.5, ease: "power2.out" }, 0.45);
+        tl.fromTo(q(".s8-spine"), { scaleX: 0 }, { scaleX: 1, duration: 0.7, ease: "power2.inOut" }, 0.9);
+        tl.fromTo(q(".s8-card"), { opacity: 0, y: 28, scale: 0.94 }, { opacity: 1, y: 0, scale: 1, duration: 0.5, stagger: 0.13, ease: "back.out(1.5)" }, 1.4);
+
+        // sweep highlight across the icons
+        tl.fromTo(q(".s8-cic"), { textShadow: "0 0 0 rgba(255,255,255,0)" }, { textShadow: "0 0 20px rgba(255,255,255,0.5)", duration: 0.3, stagger: 0.12, yoyo: true, repeat: 1 }, 3.4);
+
+        tl.fromTo(q(".s8-foot"), { opacity: 0, y: 12 }, { opacity: 1, y: 0, duration: 0.5, ease: "power2.out" }, 4.4);
+
+        // gentle hold breathing on the clawback card (newest layer)
+        tl.to(q(".k5"), { boxShadow: "0 0 36px rgba(161,140,255,0.28)", duration: 1.0, yoyo: true, repeat: 1, ease: "sine.inOut" }, 5.2);
+
+        // exit
+        tl.to(q(".s8-head, .s8-cards, .s8-spine, .s8-foot"), { opacity: 0, y: -16, duration: 0.45, ease: "power2.in" }, 9.55);
+
+        window.__timelines = window.__timelines || {};
+        window.__timelines["scene8-ecosystem"] = tl;
+      })();
+    </script>
+  </div>
+</template>
