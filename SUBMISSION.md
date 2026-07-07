@@ -14,7 +14,7 @@
 
 ## 🎬 Demo video
 
-`promo/payward-promo.mp4` — 90s, narrated, karaoke‑captioned, with real on‑chain proofs on
+`promo/payward-promo.mp4` — 1:45 (105s), narrated, karaoke‑captioned, with real on‑chain proofs on
 screen. (Recording flow + narration for a live walkthrough: see **[DEMO-SCRIPT.md](./DEMO-SCRIPT.md)**.)
 
 > **Naming:** *Payward* is the product. Its two layers ship as separate open‑source repos —
