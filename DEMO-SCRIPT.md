@@ -1,7 +1,10 @@
-# Demo recording — flow + narration (TTS)
+# Payward — demo recording (flow + narration / TTS)
 
 A ~3‑minute live walkthrough for the Casper Agentic Buildathon. Screen recording + voiceover
 (read it yourself, or run the narration through TTS and lay it under the recording).
+
+> **Payward** is the product; **Fund402** (credit) and **Clawback** (settlement) are its two
+> layers. Name it *Payward* wherever you introduce or close.
 
 > **Tip:** you can open with the polished 90s film (`promo/fund402-promo.mp4`) as a sizzle
 > intro, then cut to the live walkthrough below — or just record the walkthrough straight.
@@ -33,7 +36,7 @@ A ~3‑minute live walkthrough for the Casper Agentic Buildathon. Screen recordi
 **SAY:**
 > "Autonomous agents can browse, call APIs, and act on their own — but the moment their wallet
 > hits zero, they stop. They hit an HTTP four‑oh‑two, *payment required*, and there's no credit
-> card for a machine. This is Fund402 — just‑in‑time credit for agents on Casper — and Clawback,
+> card for a machine. This is Payward. It's two layers: Fund402 — just‑in‑time credit for agents on Casper — and Clawback,
 > escrow with an AI judge for when agents pay each other."
 
 ### 2 · Fund402, live  (0:20–1:05)
@@ -84,7 +87,7 @@ refund). Click through to **cspr.live** on the `resolve` deploy.
 ### 7 · Close  (3:00–3:20)
 **SHOW:** The Fund402 + Clawback end card / the npm + GitHub.
 **SAY:**
-> "Fund402, and Clawback — the credit and settlement layer for the machine economy. One npm
+> "That's Payward, the credit and settlement layer for the machine economy. Fund402 for credit; Clawback for settlement. One npm
 > install, live on Casper. Thanks for watching."
 
 ---
@@ -93,7 +96,7 @@ refund). Click through to **cspr.live** on the `resolve` deploy.
 
 > Autonomous agents can browse, call APIs, and act on their own — but the moment their wallet
 > hits zero, they stop. They hit an HTTP four‑oh‑two, payment required, and there's no credit
-> card for a machine. This is Fund402 — just‑in‑time credit for agents on Casper — and Clawback,
+> card for a machine. This is Payward. It's two layers: Fund402 — just‑in‑time credit for agents on Casper — and Clawback,
 > escrow with an AI judge for when agents pay each other.
 >
 > Here's an agent with an empty wallet asking for a paid price feed. It gets a four‑oh‑two. So
@@ -119,7 +122,7 @@ refund). Click through to **cspr.live** on the `resolve` deploy.
 > skills you add with one command, and Clawback as the settlement layer. Eight open‑source repos,
 > all live on Casper.
 >
-> Fund402, and Clawback — the credit and settlement layer for the machine economy. One npm
+> That's Payward, the credit and settlement layer for the machine economy. Fund402 for credit; Clawback for settlement. One npm
 > install, live on Casper. Thanks for watching.
 
 ---

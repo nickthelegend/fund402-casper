@@ -1,18 +1,25 @@
-# Fund402 + Clawback — Hackathon Submission
+# Payward — Hackathon Submission
 
 **Casper Agentic Buildathon 2026**
 
-> **The credit & settlement layer for the machine economy.**
-> Fund402 lets an autonomous agent pay an HTTP `402` paywall with an **empty wallet** —
-> a liquidity pool fronts the micropayment and settles it on Casper. Clawback adds the
-> other half: agent‑to‑agent payments held in **escrow** with **AI‑adjudicated disputes**.
+> **Payward — the credit & settlement layer for the machine economy.**
+> Payward gives autonomous AI agents on Casper the two things they lack: **credit** and
+> **buyer protection**. It ships as two layers:
+> **Fund402** (credit *in*) lets an agent pay an HTTP `402` paywall with an **empty wallet**
+> — a liquidity pool fronts the micropayment and settles it on Casper.
+> **Clawback** (settlement *out*) holds agent‑to‑agent payments in **escrow** with
+> **AI‑adjudicated disputes**.
 
 ---
 
 ## 🎬 Demo video
 
-`promo/fund402-promo.mp4` — 90s, narrated, on‑chain proofs on screen.
-(Recording flow + narration for a live walkthrough: see **[DEMO-SCRIPT.md](./DEMO-SCRIPT.md)**.)
+`promo/payward-promo.mp4` — 90s, narrated, karaoke‑captioned, with real on‑chain proofs on
+screen. (Recording flow + narration for a live walkthrough: see **[DEMO-SCRIPT.md](./DEMO-SCRIPT.md)**.)
+
+> **Naming:** *Payward* is the product. Its two layers ship as separate open‑source repos —
+> **Fund402** (`@nickthelegend69/fund402`, the credit layer) and **Clawback** (the settlement
+> layer). The repos keep those names; Payward is the umbrella.
 
 ## The problem
 
@@ -22,7 +29,9 @@ or when a paid endpoint's price is only known at runtime (the `402` arrives dyna
 There is **no credit primitive for machines**, and **no protection** when one agent pays
 another for work that comes back wrong.
 
-## The solution — two layers
+## The solution — Payward's two layers
+
+**Payward** is one platform, two primitives:
 
 | Layer | What it does |
 |---|---|
@@ -97,8 +106,8 @@ unit modules — and every behavior it covers is *also* proven live against the 
 
 Agents that transact need two things humans take for granted: **a line of credit** (so an empty
 wallet isn't a dead end) and **buyer protection** (so paying another agent isn't a leap of
-faith). Fund402 + Clawback are those two primitives, native to Casper, drop‑in via one
-`npm install`.
+faith). **Payward** is those two primitives — Fund402 and Clawback — native to Casper, drop‑in
+via one `npm install`.
 
 ## What's next
 
