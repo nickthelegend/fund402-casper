@@ -6,7 +6,7 @@ A ~3‑minute live walkthrough for the Casper Agentic Buildathon. Screen recordi
 > **Payward** is the product; **Fund402** (credit) and **Clawback** (settlement) are its two
 > layers. Name it *Payward* wherever you introduce or close.
 
-> **Tip:** you can open with the polished 90s film (`promo/fund402-promo.mp4`) as a sizzle
+> **Tip:** you can open with the polished 90s film (`promo/payward-promo.mp4`) as a sizzle
 > intro, then cut to the live walkthrough below — or just record the walkthrough straight.
 > Keep it calm and confident; let the on‑chain proofs do the bragging.
 
