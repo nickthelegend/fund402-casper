@@ -25,6 +25,7 @@ import {
   DeployHeader,
   ExecutableDeployItem,
   StoredContractByHash,
+  StoredVersionedContractByHash,
   ContractHash,
   Args,
   CLValue,
@@ -38,7 +39,7 @@ export interface CasperWiringConfig {
   nodeUrl: string;
   network: string; // CAIP-2, e.g. "casper:casper-test"
   chainName: string; // "casper-test"
-  vaultContractHash: string; // 64-hex contract hash (no prefix)
+  vaultContractHash: string; // 64-hex vault PACKAGE hash (called via the versioned package on Condor)
   agentSecretKey: string; // PEM contents or hex
   agentPublicKey: string; // account-key hex (01.. / 02..)
   keyAlgorithm?: KeyAlgorithm;
@@ -47,7 +48,15 @@ export interface CasperWiringConfig {
 }
 
 export function rpc(nodeUrl: string): RpcClient {
-  return new RpcClient(new HttpHandler(nodeUrl));
+  const handler = new HttpHandler(nodeUrl);
+  // CSPR.cloud's node RPC requires the access key in an Authorization header.
+  // Attach it automatically when talking to a cspr.cloud endpoint so a borrow /
+  // repay / approve deploy isn't rejected with 401.
+  const key = process.env.CSPR_CLOUD_API_KEY;
+  if (key && /cspr\.cloud/i.test(nodeUrl)) {
+    handler.setCustomHeaders({ Authorization: key });
+  }
+  return new RpcClient(handler);
 }
 
 export async function loadPrivateKey(
@@ -63,9 +72,14 @@ export async function loadPrivateKey(
 
 /** Build a CLKey arg from an account-hash ("account-hash-..") or hex string. */
 function addressKey(addr: string): CLValue {
-  const normalized = addr.startsWith("account-hash-") ? addr : `account-hash-${addr}`;
+  // Strip an optional "account-hash-" prefix down to raw hex first.
+  let hex = addr.startsWith("account-hash-") ? addr.slice("account-hash-".length) : addr;
+  // x402 payTo encodes an account hash with a leading "00" tag byte (public keys
+  // use 01/02). A bare account hash is 64 hex chars; a tagged one is 66. Drop the
+  // tag so Key.newKey receives the exact 64-hex account hash it expects.
+  if (hex.length === 66 && hex.startsWith("00")) hex = hex.slice(2);
   // Key.newKey accepts a formatted key string (account-hash-.., hash-.., uref-..).
-  return CLValue.newCLKey(Key.newKey(normalized));
+  return CLValue.newCLKey(Key.newKey(`account-hash-${hex}`));
 }
 
 /**
@@ -97,10 +111,13 @@ export async function borrowAndPayOnChain(
   header.ttl = new Duration(DEFAULT_DEPLOY_TTL);
 
   const session = new ExecutableDeployItem();
-  session.storedContractByHash = new StoredContractByHash(
+  // The vault is deployed as a versioned package (Condor) — call the latest
+  // version by package hash, matching the on-chain contract registration.
+  session.storedVersionedContractByHash = new StoredVersionedContractByHash(
     ContractHash.newContract(cfg.vaultContractHash),
     "borrow_and_pay",
-    runtimeArgs
+    runtimeArgs,
+    undefined
   );
 
   const payment = ExecutableDeployItem.standardPayment(cfg.borrowGasMotes ?? "5000000000");
@@ -127,10 +144,11 @@ export async function repayLoanOnChain(
   header.ttl = new Duration(DEFAULT_DEPLOY_TTL);
 
   const session = new ExecutableDeployItem();
-  session.storedContractByHash = new StoredContractByHash(
+  session.storedVersionedContractByHash = new StoredVersionedContractByHash(
     ContractHash.newContract(cfg.vaultContractHash),
     "repay_loan",
-    Args.fromMap({ loan_id: CLValue.newCLUint64(BigInt(loanId)) })
+    Args.fromMap({ loan_id: CLValue.newCLUint64(BigInt(loanId)) }),
+    undefined
   );
 
   const payment = ExecutableDeployItem.standardPayment("3000000000");

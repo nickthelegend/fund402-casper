@@ -22,12 +22,19 @@ import {
 export interface Fund402Config {
   agentSecretKey: string; // PEM or hex
   agentPublicKey: string; // account-key hex (01.. ed25519 / 02.. secp256k1)
-  vaultContractHash: string; // 64-hex vault contract hash
+  vaultContractHash: string; // 64-hex vault PACKAGE hash (called via the versioned package)
   network: string; // CAIP-2, e.g. "casper:casper-test"
   nodeUrl: string; // Casper JSON-RPC
   facilitatorUrl: string; // casper-x402 facilitator base URL
   chainName?: string; // "casper-test" (derived from network if omitted)
   keyAlgorithm?: KeyAlgorithm;
+  /**
+   * Collateral in CEP-18 base units to post for the JIT borrow. Omit (or 0n) for
+   * the reputation-based, ZERO-collateral flow — the empty-wallet case: a Tier-3
+   * agent borrows with nothing in its wallet. Set a positive value only for the
+   * collateralized tiers (the agent must hold + `approve` that much first).
+   */
+  collateralBaseUnits?: bigint;
   onEvent?: (event: Fund402Event) => void;
 }
 
@@ -95,9 +102,11 @@ export function withPaymentInterceptor(config: Fund402Config): AxiosInstance {
         asset: option.asset,
       });
 
-      // 1. JIT collateral (150%) — the vault re-checks on-chain.
+      // 1. JIT collateral — default 0 (reputation-based, empty-wallet borrow).
+      // The vault re-checks the agent's on-chain tier and reverts if the posted
+      // collateral is short for its tier.
       emit(config, "simulating_borrow", { amount: amount.toString() });
-      const collateral = (amount * 150n) / 100n;
+      const collateral = config.collateralBaseUnits ?? 0n;
 
       // 2. Front the payment through the vault.
       emit(config, "signing_authorization", { merchant: option.payTo });

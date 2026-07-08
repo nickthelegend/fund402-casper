@@ -15,7 +15,7 @@
     "keygen": "node scripts/keygen.mjs",
     "deploy:token": "node scripts/deploy-token.mjs",
     "setup:liquidity": "node scripts/setup-liquidity.mjs",
-    "demo:borrow": "node scripts/demo-borrow.mjs"
+    "demo:borrow": "node --env-file=.env.local scripts/demo-borrow.mjs"
   },
   "dependencies": {
     "casper-js-sdk": "^5.0.12",

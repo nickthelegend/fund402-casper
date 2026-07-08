@@ -21,6 +21,10 @@ export const ASSET_DECIMALS = process.env.X402_ASSET_DECIMALS ?? "9";
 export const ASSET_SYMBOL = process.env.X402_ASSET_SYMBOL ?? "USDC";
 export const PRICE_UNITS = process.env.X402_PRICE_UNITS ?? "1000000"; // base units per call
 export const VAULT_CONTRACT = (process.env.FUND402_VAULT_CONTRACT ?? "").replace(/^hash-/, "");
+// The vault is deployed as a versioned package; borrow_and_pay deploys target it
+// by package hash (stable across version upgrades). This is the canonical vault
+// identity to verify a settlement against.
+export const VAULT_PACKAGE = (process.env.FUND402_VAULT_PACKAGE ?? "").replace(/^hash-/, "");
 export const ORIGIN_BASE_URL = process.env.ORIGIN_BASE_URL ?? "https://api.coinbase.com/v2";
 
 export interface PaymentRequirements {
@@ -117,8 +121,15 @@ export async function verifyBorrowDeploy(
   const paidMerchant =
     !argMerchant || argMerchant.toLowerCase().includes(expect.merchant.replace(/^00/, "").toLowerCase());
 
-  // If the vault contract hash is configured, ensure the deploy targeted it.
-  if (VAULT_CONTRACT && d?.contract_hash && !String(d.contract_hash).toLowerCase().includes(VAULT_CONTRACT.toLowerCase())) {
+  // Ensure the deploy targeted the Fund402 vault. The vault is a versioned
+  // package, so match its package hash (primary, upgrade-stable); fall back to
+  // the resolved contract-entity hash for legacy configs.
+  const pkgHash = String(d?.contract_package_hash ?? "").toLowerCase();
+  const ctrHash = String(d?.contract_hash ?? "").toLowerCase();
+  const targetsVault =
+    (VAULT_PACKAGE && pkgHash.includes(VAULT_PACKAGE.toLowerCase())) ||
+    (VAULT_CONTRACT && ctrHash.includes(VAULT_CONTRACT.toLowerCase()));
+  if ((VAULT_PACKAGE || VAULT_CONTRACT) && (pkgHash || ctrHash) && !targetsVault) {
     return { valid: false, reason: "deploy did not target the configured vault", status };
   }
 
